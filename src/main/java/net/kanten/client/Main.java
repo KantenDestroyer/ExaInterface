@@ -16,6 +16,7 @@ public class Main {
             System.out.println("Connected");
             Thread.sleep(1000);
             while(true){
+                boolean exit = false;
             while(true){
                 new clearTerminal();
                 System.out.print("Read Outputs\n");
@@ -53,13 +54,16 @@ public class Main {
                         break;
                     case "exit":
                         System.out.println("Exiting");
+                        exit = true;
                         break;
                 }
                 Thread.sleep(1000);
                 client.close();
                 output.close();
                 input.close();
-            }}
+            }
+                if(exit)break;
+            }
         }catch(InterruptedException | ClassNotFoundException | IOException e){
             if(e.getMessage().toLowerCase().startsWith("connection refused")) {
                 System.out.println("Connection failed");
