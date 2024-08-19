@@ -38,6 +38,7 @@ public class Server{
         }
         public void run(){
             try {
+                database db = new database();
                 Socket server;
                 server = this.socket.accept();
                 ObjectOutputStream output = new ObjectOutputStream(server.getOutputStream());
@@ -46,12 +47,18 @@ public class Server{
                 System.out.print(server + "\n");
                 switch (clientInput.toLowerCase()) {
                     case "create":
-                        System.out.print("Create command\n");
-                        output.writeObject("Created");
+                        output.writeObject("Which User should i Create?");
+                        server = this.socket.accept();
+                        System.out.println();
+                        output.writeObject("done");
+                        break;
+                    case "delete":
+                        output.writeObject("Which User should i delete");
+
                         break;
                     case "print":
-                        System.out.print("Printing command\n");
                         output.writeObject("Printing");
+
                         break;
                     case "help":
                         System.out.print("Help command\n");

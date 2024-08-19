@@ -9,13 +9,14 @@ import javax.crypto.IllegalBlockSizeException;
 import java.io.IOException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
-import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.Random;
 import java.util.Scanner;
 
 //This Main Class is only for Test Purpose!!!
 public class Main {
     static Cryptographic cry = new Cryptographic();
+    static Random rnd = new Random();
     public static void main(String[] args) throws IOException, NoSuchAlgorithmException, IllegalBlockSizeException, BadPaddingException, InvalidKeyException, SQLException, ClassNotFoundException {
         if(args.length != 0){
             String argument = args[0].toLowerCase();
@@ -46,7 +47,9 @@ public class Main {
                     break;
                 case "d":
                     database db =new database();
-                    //db.createUser("1","kanten","Iokl544807",Cryptographic.convertSecretKeyToString(cry.createKey()));
+                    db.createUser("1","kanten","Iokl544807",Cryptographic.convertSecretKeyToString(cry.createKey()));
+                    db.print();
+                    db.deleteUser("1","kanten");
                     db.print();
                     break;
                 default:

@@ -2,12 +2,9 @@ package net.kanten.server.Webserver;
 
 import com.sun.net.httpserver.*;
 
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
-import java.util.Scanner;
 
 
 public class Webserver {

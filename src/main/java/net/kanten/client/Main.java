@@ -16,6 +16,7 @@ public class Main {
             System.out.println("Connected");
             Thread.sleep(1000);
             while(true){
+            while(true){
                 new clearTerminal();
                 System.out.print("Read Outputs\n");
                 ObjectOutputStream output = new ObjectOutputStream(client.getOutputStream());
@@ -26,14 +27,39 @@ public class Main {
                 String clientOutput = scan.nextLine();
                 System.out.print("\nSending to Server\n");
                 output.writeObject(clientOutput);
-                String serverInput = (String) input.readObject();
-                System.out.println(serverInput);
+                switch(clientOutput){
+                    case "create":
+                        String clientInput = (String) input.readObject();
+                        System.out.println(clientInput);
+                        String[] userInformation;
+                        System.out.print("\nID\n");
+                        System.out.print(">");
+                        String ID = scan.nextLine();
+                        System.out.print("\nUsername\n");
+                        System.out.print(">");
+                        String Username = scan.nextLine();
+                        System.out.print("\nPassword\n");
+                        System.out.print(">");
+                        String Password = scan.nextLine();
+                        userInformation = new String[]{ID, Username, Password};
+                        System.out.print("\nSending to Server\n");
+                        output.writeObject(userInformation);
+                        break;
+                    case "delete":
+
+                        break;
+                    case "print":
+
+                        break;
+                    case "exit":
+                        System.out.println("Exiting");
+                        break;
+                }
                 Thread.sleep(1000);
                 client.close();
                 output.close();
                 input.close();
-                if(clientOutput.equals("exit"))System.out.println("Exiting"); break;
-            }
+            }}
         }catch(InterruptedException | ClassNotFoundException | IOException e){
             if(e.getMessage().toLowerCase().startsWith("connection refused")) {
                 System.out.println("Connection failed");
