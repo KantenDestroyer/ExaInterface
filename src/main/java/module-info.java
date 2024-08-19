@@ -1,0 +1,13 @@
+module net.kanten.exainteface {
+    requires javafx.controls;
+    requires javafx.fxml;
+    requires javafx.web;
+
+    requires net.synedra.validatorfx;
+    requires org.kordamp.ikonli.javafx;
+    requires org.kordamp.bootstrapfx.core;
+    requires eu.hansolo.tilesfx;
+
+    opens net.kanten.exainteface to javafx.fxml;
+    exports net.kanten.exainteface;
+}
