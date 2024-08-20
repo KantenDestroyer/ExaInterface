@@ -45,7 +45,7 @@ public class Server{
                 socket = this.socket.accept();
                 ObjectOutputStream output = new ObjectOutputStream(socket.getOutputStream());
                 ObjectInputStream input = new ObjectInputStream(socket.getInputStream());
-                String clientInput = (String) input.readObject();
+                Object clientInput = input.readObject();
                 System.out.println(clientInput);
                 System.out.print(socket + "\n");
                 switch (clientInput.toLowerCase()) {
