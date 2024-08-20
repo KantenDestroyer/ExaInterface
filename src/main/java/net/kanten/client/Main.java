@@ -8,6 +8,7 @@ import java.net.Socket;
 import java.util.Scanner;
 
 public class Main {
+    private static boolean exit = false;
     public static void main(String serverAdress) {
         try{
             Thread.sleep(1000);
@@ -16,8 +17,8 @@ public class Main {
             System.out.println("Connected");
             Thread.sleep(1000);
             while(true){
-                boolean exit = false;
-            while(true){
+                if(exit)break;
+                while(true){
                 new clearTerminal();
                 System.out.print("Read Outputs\n");
                 ObjectOutputStream output = new ObjectOutputStream(client.getOutputStream());
@@ -62,7 +63,6 @@ public class Main {
                 output.close();
                 input.close();
             }
-                if(exit)break;
             }
         }catch(InterruptedException | ClassNotFoundException | IOException e){
             if(e.getMessage().toLowerCase().startsWith("connection refused")) {
