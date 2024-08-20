@@ -57,6 +57,8 @@ public class Main {
                     System.out.println(" -s     --server    |" + "to start the Main Server");
                     System.out.println(" -ws    --web-server|" + "to start the Main WebServer");
                     System.out.println(" -c     --client    |" + "to start the Main Client");
+                    System.out.println(" e                  |" + "to test Cryptographic");
+                    System.out.println(" d                  |" + "to test database");
                     break;
             }
         }else {
@@ -64,6 +66,8 @@ public class Main {
             System.out.println(" -s     --server    |" + "to start the Main Server");
             System.out.println(" -ws    --web-server|" + "to start the Main WebServer");
             System.out.println(" -c     --client    |" + "to start the Main Client");
+            System.out.println(" e                  |" + "to test Cryptographic");
+            System.out.println(" d                  |" + "to test database");
         }
     }
 }
