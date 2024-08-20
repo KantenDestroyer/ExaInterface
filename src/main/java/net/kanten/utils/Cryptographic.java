@@ -33,6 +33,7 @@ public class Cryptographic{
     public SecretKey getKey(){
         return key;
     }
+    public byte[] getRawKey(){return key.getEncoded();}
     public static String convertSecretKeyToString(SecretKey sk) throws NoSuchAlgorithmException {
         byte[] rawData = sk.getEncoded();
         return Base64.getEncoder().encodeToString(rawData);

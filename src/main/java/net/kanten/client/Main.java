@@ -4,7 +4,9 @@ import net.kanten.utils.clearTerminal;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.lang.reflect.Array;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.Scanner;
 
 public class Main {
@@ -27,13 +29,9 @@ public class Main {
                 System.out.print(">");
                 Scanner scan = new Scanner(System.in);
                 String clientOutput = scan.nextLine();
-                System.out.print("\nSending to Server\n");
-                output.writeObject(clientOutput);
                 switch(clientOutput){
                     case "create":
-                        String clientInput = (String) input.readObject();
-                        System.out.println(clientInput);
-                        String[] userInformation;
+                        String userInformation;
                         System.out.print("\nID\n");
                         System.out.print(">");
                         String ID = scan.nextLine();
@@ -43,9 +41,11 @@ public class Main {
                         System.out.print("\nPassword\n");
                         System.out.print(">");
                         String Password = scan.nextLine();
-                        userInformation = new String[]{ID, Username, Password};
                         System.out.print("\nSending to Server\n");
+                        userInformation = ID + "," +Username+ ","+ "Password";
                         output.writeObject(userInformation);
+                        String clientInput = (String) input.readObject();
+                        System.out.println(clientInput);
                         break;
                     case "delete":
 

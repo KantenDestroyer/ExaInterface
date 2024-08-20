@@ -3,8 +3,10 @@ package net.kanten.server;
 import net.kanten.utils.clearTerminal;
 
 import java.io.*;
+import java.lang.reflect.Array;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
 
 public class Server{
     public void run() {
@@ -31,25 +33,24 @@ public class Server{
             }
         }
     }
-    protected class intergrate implements Runnable{
-        private ServerSocket socket;
+    protected static class intergrate implements Runnable{
+        private final ServerSocket socket;
         public intergrate(ServerSocket socket) throws IOException {
             this.socket = socket;
         }
         public void run(){
             try {
                 database db = new database();
-                Socket server;
-                server = this.socket.accept();
-                ObjectOutputStream output = new ObjectOutputStream(server.getOutputStream());
-                ObjectInputStream input = new ObjectInputStream(server.getInputStream());
+                Socket socket;
+                socket = this.socket.accept();
+                ObjectOutputStream output = new ObjectOutputStream(socket.getOutputStream());
+                ObjectInputStream input = new ObjectInputStream(socket.getInputStream());
                 String clientInput = (String) input.readObject();
-                System.out.print(server + "\n");
+                System.out.println(clientInput);
+                System.out.print(socket + "\n");
                 switch (clientInput.toLowerCase()) {
                     case "create":
-                        output.writeObject("Which User should i Create?");
-                        server = this.socket.accept();
-                        System.out.println();
+                        System.out.println(clientInput);
                         output.writeObject("done");
                         break;
                     case "delete":
@@ -70,7 +71,7 @@ public class Server{
                         break;
                 }
             } catch (ClassNotFoundException | IOException e) {
-                System.out.println(e);
+                System.out.println(e.getMessage());
             }
         }
     }

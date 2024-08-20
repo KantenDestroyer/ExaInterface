@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.Random;
 import java.util.Scanner;
 
@@ -17,7 +18,8 @@ import java.util.Scanner;
 public class Main {
     static Cryptographic cry = new Cryptographic();
     static Random rnd = new Random();
-    public static void main(String[] args) throws IOException, NoSuchAlgorithmException, IllegalBlockSizeException, BadPaddingException, InvalidKeyException, SQLException, ClassNotFoundException {
+    static Scanner scan = new Scanner(System.in);
+    public static void main(String[] args) throws IOException, NoSuchAlgorithmException, IllegalBlockSizeException, BadPaddingException, InvalidKeyException, SQLException {
         if(args.length != 0){
             String argument = args[0].toLowerCase();
             switch(argument) {
@@ -32,18 +34,44 @@ public class Main {
                 case "-c":
                 case "--client":
                     new clearTerminal();
-                    Scanner scaner = new Scanner(System.in);
                     System.out.print("Enter Adresse: ");
-                    String serverAdress = scaner.nextLine();
+                    String serverAdress = scan.nextLine();
                     net.kanten.client.Main.main(serverAdress);
                     break;
                 case "e":
-                    cry.setKeyByString("q3Gwy8qBtaUvCjWpR/95heO9g6RXsLi0ieVpc9SfOBk=");
-                    String keyString = Cryptographic.convertSecretKeyToString(cry.getKey());
-                    System.out.println(keyString);
-                    System.out.println(keyString.length());
-                    System.out.println(cry.getKey());
-                    System.out.println(Cryptographic.decrypt("o2cMnxr6l1V6X1lGLk4X+g==", cry.getKey()));
+                    System.out.print("d to Decrypt, e to encrypt:");
+                    String chose = scan.nextLine();
+                    if(chose.equalsIgnoreCase("d")) {
+                        System.out.print("Enter a SecretKey:");
+                        String SecretKey = scan.nextLine();
+                        cry.setKeyByString(SecretKey);//"q3Gwy8qBtaUvCjWpR/95heO9g6RXsLi0ieVpc9SfOBk=" <- Example SK
+                        String keyString = Cryptographic.convertSecretKeyToString(cry.getKey());
+                        System.out.println("the key:"+keyString);
+                        System.out.println("key length:"+keyString.length());
+                        System.out.println("key address:"+cry.getKey());
+                        System.out.println("Raw key:"+ Arrays.toString(cry.getRawKey()));
+                        System.out.print("\nEnter a cryptedtext to decrypt it:");
+                        String cryptedText = scan.nextLine();
+                        System.out.println(Cryptographic.decrypt(cryptedText, cry.getKey()));//"o2cMnxr6l1V6X1lGLk4X+g==" <- Example crypted text
+                    }else if(chose.equalsIgnoreCase("e")){
+                        System.out.print("Enter a SecretKey (no input Generate one):");
+                        String SK = scan.nextLine();
+                        if(!SK.isEmpty()) {
+                            cry.setKeyByString(SK);
+                        }else{
+                            cry.setKeyBySecretKey(cry.createKey());
+                        }
+                        String keyString = Cryptographic.convertSecretKeyToString(cry.getKey());
+                        System.out.println("the key:"+keyString);
+                        System.out.println("key length:"+keyString.length());
+                        System.out.println("key address:"+cry.getKey());
+                        System.out.println("Raw key:"+ Arrays.toString(cry.getRawKey()));
+                        System.out.print("\nEnter a Text to encrypt it:");
+                        String Text = scan.nextLine();
+                        System.out.println(Cryptographic.encrypt(Text, cry.getKey()));
+                    }else{
+                        System.out.println("wrong input");
+                    }
                     break;
                 case "d":
                     database db =new database();
