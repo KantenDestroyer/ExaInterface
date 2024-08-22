@@ -36,7 +36,7 @@ public class Main {
                     new clearTerminal();
                     System.out.print("Enter Adresse: ");
                     String serverAdress = scan.nextLine();
-                    net.kanten.client.Main.main(serverAdress);
+                    net.kanten.client.Main.run(serverAdress);
                     break;
                 case "e":
                     System.out.print("d to Decrypt, e to encrypt:");
@@ -77,8 +77,8 @@ public class Main {
                     database db =new database();
                     db.createUser("1","kanten","Iokl544807",Cryptographic.convertSecretKeyToString(cry.createKey()));
                     db.print();
-                    db.deleteUser("1","kanten");
-                    db.print();
+                    db.deleteUser("1");
+                    System.out.println(db.getPrint());
                     break;
                 default:
                     System.out.println("\n Its a Master-build argument are:\n");

@@ -1,14 +1,19 @@
 package net.kanten.server;
 
+import net.kanten.utils.Cryptographic;
 import net.kanten.utils.clearTerminal;
 
 import java.io.*;
 import java.lang.reflect.Array;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.security.NoSuchAlgorithmException;
+import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.function.Consumer;
 
-public class Server{
+public class Server {
     public void run() {
         new clearTerminal();
         //INIT
@@ -22,7 +27,7 @@ public class Server{
         System.out.println(socket.getLocalSocketAddress());
         System.out.println("Server started");
         //open here Server Inputs & Outputs
-        while(true) {
+        while (true) {
             //wait for any Client reaction
             try {
                 //if server get a client, continue with a new thread
@@ -33,44 +38,68 @@ public class Server{
             }
         }
     }
-    protected static class intergrate implements Runnable{
+
+    protected static class intergrate implements Runnable {
         private final ServerSocket socket;
+
         public intergrate(ServerSocket socket) throws IOException {
             this.socket = socket;
         }
-        public void run(){
+
+        public void run() {
             try {
+                Cryptographic cry = new Cryptographic();
                 database db = new database();
                 Socket socket;
                 socket = this.socket.accept();
                 ObjectOutputStream output = new ObjectOutputStream(socket.getOutputStream());
                 ObjectInputStream input = new ObjectInputStream(socket.getInputStream());
                 Object clientInput = input.readObject();
-                System.out.println(clientInput);
+                String[] clientInformation = (String[]) clientInput;
+                String Message;
+                System.out.println("Converted object:" + Arrays.toString(clientInformation));
                 System.out.print(socket + "\n");
-                switch (clientInput.toLowerCase()) {
+                switch (clientInformation[0].toLowerCase()) {
                     case "create":
-                        System.out.println(clientInput);
-                        output.writeObject("done");
+                        System.out.println("generated Secret Key:");
+                        String SK = Cryptographic.convertSecretKeyToString(cry.createKey());
+                        System.out.println("User Information:");
+                        System.out.println("ID: " + clientInformation[1]);
+                        System.out.println("Username: " + clientInformation[2]);
+                        System.out.println("Password: " + clientInformation[3]);
+                        System.out.println("SecretKey: " + SK);
+                        System.out.println("Create User");
+                        db.createUser(clientInformation[1], clientInformation[2], clientInformation[3], SK);
+                        Message = "done for " + clientInformation[1] + ",SecretKey is: " + SK;
+                        System.out.println(Message);
+                        output.writeObject(Message);
                         break;
                     case "delete":
-                        output.writeObject("Which User should i delete");
-
+                        System.out.println("Delete User");
+                        System.out.println("Information:");
+                        System.out.println("ID: " + clientInformation[1]);
+                        System.out.println("Deleting User");
+                        db.deleteUser(clientInformation[1]);
+                        Message = "User Deleted";
+                        output.writeObject(Message);
                         break;
                     case "print":
-                        output.writeObject("Printing");
-
+                        System.out.println("Print Database");
+                        System.out.println("Information:");
+                        db.print();
+                        System.out.println("Sending to Client");
+                        output.writeObject(db.getPrint());
                         break;
                     case "help":
                         System.out.print("Help command\n");
-                        output.writeObject("these are the commands\ncreate      |   To create a User\nprint     |   to Print users\nhelp        |   To show command list");
+                        output.writeObject("these are the commands\ncreate      |   To create a User\ndelete      |      To delete User\nprint         |   to Print users\nhelp        |   To show command list");
                         break;
                     default:
                         System.out.println("Cant nothing do with that command\n");
                         output.writeObject("unknown Command\ntype \"help\" for more information");
                         break;
                 }
-            } catch (ClassNotFoundException | IOException e) {
+            } catch (ClassNotFoundException | IOException | SQLException | NoSuchAlgorithmException e) {
                 System.out.println(e.getMessage());
             }
         }

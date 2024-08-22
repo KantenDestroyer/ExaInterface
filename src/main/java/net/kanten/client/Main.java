@@ -4,78 +4,94 @@ import net.kanten.utils.clearTerminal;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.lang.reflect.Array;
 import java.net.Socket;
-import java.util.ArrayList;
 import java.util.Scanner;
 
 public class Main {
     private static boolean exit = false;
-    public static void main(String serverAdress) {
+    public static void run(String serverAddress) {
         try{
             Thread.sleep(1000);
             System.out.print("Start connection\n");
-            Socket client= new Socket(serverAdress, 500);
+            Socket client= new Socket(serverAddress, 500);
             System.out.println("Connected");
             Thread.sleep(1000);
-            while(true){
-                if(exit)break;
-                while(true){
-                new clearTerminal();
-                System.out.print("Read Outputs\n");
-                ObjectOutputStream output = new ObjectOutputStream(client.getOutputStream());
-                System.out.print("Read inputs\n");
-                ObjectInputStream input = new ObjectInputStream(client.getInputStream());
-                System.out.print(">");
-                Scanner scan = new Scanner(System.in);
-                String clientOutput = scan.nextLine();
-                switch(clientOutput){
-                    case "create":
-                        String userInformation;
-                        System.out.print("\nID\n");
-                        System.out.print(">");
-                        String ID = scan.nextLine();
-                        System.out.print("\nUsername\n");
-                        System.out.print(">");
-                        String Username = scan.nextLine();
-                        System.out.print("\nPassword\n");
-                        System.out.print(">");
-                        String Password = scan.nextLine();
-                        System.out.print("\nSending to Server\n");
-                        userInformation = ID + "," +Username+ ","+ "Password";
-                        output.writeObject(userInformation);
-                        String clientInput = (String) input.readObject();
-                        System.out.println(clientInput);
-                        break;
-                    case "delete":
+            while (!exit) {
+                while (true) {
+                    new clearTerminal();
+                    System.out.print("Read Outputs\n");
+                    ObjectOutputStream output = new ObjectOutputStream(client.getOutputStream());
+                    System.out.print("Read inputs\n");
+                    ObjectInputStream input = new ObjectInputStream(client.getInputStream());
+                    System.out.print(">");
 
-                        break;
-                    case "print":
-
-                        break;
-                    case "exit":
-                        System.out.println("Exiting");
-                        exit = true;
-                        break;
+                    Scanner scan = new Scanner(System.in);
+                    String clientOutput = scan.nextLine();
+                    String[] userInformation;
+                    String clientInput;
+                    switch (clientOutput) {
+                        case "create":
+                            System.out.print("\nID\n");
+                            System.out.print(">");
+                            String cID = scan.nextLine();
+                            System.out.print("\nUsername\n");
+                            System.out.print(">");
+                            String cUsername = scan.nextLine();
+                            System.out.print("\nPassword\n");
+                            System.out.print(">");
+                            String cPassword = scan.nextLine();
+                            System.out.print("\nSending to Server\n");
+                            userInformation = new String[]{clientOutput, cID, cUsername, cPassword};
+                            output.writeObject(userInformation);
+                            clientInput = (String) input.readObject();
+                            System.out.println(clientInput);
+                            System.out.print("\n Press enter to continue.....");
+                            scan.nextLine();
+                            break;
+                        case "delete":
+                            System.out.print("\nID\n");
+                            System.out.print(">");
+                            String dID = scan.nextLine();
+                            System.out.print("\nSending to Server\n");
+                            userInformation = new String[]{clientOutput, dID};
+                            output.writeObject(userInformation);
+                            clientInput = (String) input.readObject();
+                            System.out.println(clientInput);
+                            System.out.print("\n Press enter to continue.....");
+                            scan.nextLine();
+                            break;
+                        case "exit":
+                            System.out.println("Exiting");
+                            exit = true;
+                            break;
+                        default:
+                            System.out.print("\nSending to Server\n");
+                            userInformation = new String[]{clientOutput};
+                            output.writeObject(userInformation);
+                            clientInput = (String) input.readObject();
+                            System.out.println(clientInput);
+                            System.out.print("\n Press enter to continue.....");
+                            scan.nextLine();
+                            break;
+                    }
+                    Thread.sleep(1000);
+                    client.close();
+                    output.close();
+                    input.close();
                 }
-                Thread.sleep(1000);
-                client.close();
-                output.close();
-                input.close();
-            }
             }
         }catch(InterruptedException | ClassNotFoundException | IOException e){
             if(e.getMessage().toLowerCase().startsWith("connection refused")) {
                 System.out.println("Connection failed");
             }
-            main(serverAdress);
+            run(serverAddress);
         }
     }
-    public static void main(String[] args) {
+    public static void run(String[] args) {
         new clearTerminal();
-        System.out.print("Enter Adresse: ");
-        Scanner scaner = new Scanner(System.in);
-        String serverAdress = scaner.nextLine();
-        main(serverAdress);
+        System.out.print("Enter Address: ");
+        Scanner caner = new Scanner(System.in);
+        String serverAddress = caner.nextLine();
+        run(serverAddress);
     }
 }
