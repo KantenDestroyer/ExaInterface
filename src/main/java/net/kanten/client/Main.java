@@ -8,7 +8,7 @@ import java.net.Socket;
 import java.util.Scanner;
 
 public class Main {
-    private static boolean exit = false;
+    //private static boolean exit = false;
     public static void run(String serverAddress) {
         try{
             Thread.sleep(1000);
@@ -16,7 +16,7 @@ public class Main {
             Socket client= new Socket(serverAddress, 500);
             System.out.println("Connected");
             Thread.sleep(1000);
-            while (!exit) {
+            //while (!exit) {
                 while (true) {
                     new clearTerminal();
                     System.out.print("Read Outputs\n");
@@ -62,7 +62,7 @@ public class Main {
                             break;
                         case "exit":
                             System.out.println("Exiting");
-                            exit = true;
+                            System.exit(0);
                             break;
                         default:
                             System.out.print("\nSending to Server\n");
@@ -74,12 +74,11 @@ public class Main {
                             scan.nextLine();
                             break;
                     }
-                    Thread.sleep(1000);
                     client.close();
                     output.close();
                     input.close();
                 }
-            }
+            //}
         }catch(InterruptedException | ClassNotFoundException | IOException e){
             if(e.getMessage().toLowerCase().startsWith("connection refused")) {
                 System.out.println("Connection failed");
@@ -87,7 +86,7 @@ public class Main {
             run(serverAddress);
         }
     }
-    public static void run(String[] args) {
+    public static void main(String[] args) {
         new clearTerminal();
         System.out.print("Enter Address: ");
         Scanner caner = new Scanner(System.in);

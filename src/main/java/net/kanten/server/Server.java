@@ -70,7 +70,7 @@ public class Server {
                         System.out.println("SecretKey: " + SK);
                         System.out.println("Create User");
                         db.createUser(clientInformation[1], clientInformation[2], clientInformation[3], SK);
-                        Message = "done for " + clientInformation[1] + ",SecretKey is: " + SK;
+                        Message = "done for " + clientInformation[2] + ",SecretKey is: " + SK;
                         System.out.println(Message);
                         output.writeObject(Message);
                         break;
