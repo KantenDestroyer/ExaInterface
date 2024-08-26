@@ -80,11 +80,16 @@ public class Main {
                     db.deleteUser("1");
                     System.out.println(db.getPrint());
                     break;
+                case "--gui":
+                case "-g":
+
+                    break;
                 default:
                     System.out.println("\n Its a Master-build argument are:\n");
                     System.out.println(" -s     --server    |" + "to start the Main Server");
                     System.out.println(" -ws    --web-server|" + "to start the Main WebServer");
                     System.out.println(" -c     --client    |" + "to start the Main Client");
+                    System.out.println(" -g     --gui       |" + "to start gui");
                     System.out.println(" e                  |" + "to test Cryptographic");
                     System.out.println(" d                  |" + "to test database");
                     break;
@@ -94,6 +99,7 @@ public class Main {
             System.out.println(" -s     --server    |" + "to start the Main Server");
             System.out.println(" -ws    --web-server|" + "to start the Main WebServer");
             System.out.println(" -c     --client    |" + "to start the Main Client");
+            System.out.println(" -g     --gui       |" + "to start gui");
             System.out.println(" e                  |" + "to test Cryptographic");
             System.out.println(" d                  |" + "to test database");
         }
