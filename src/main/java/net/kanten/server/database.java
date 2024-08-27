@@ -78,8 +78,7 @@ public class database{
             Statement state = connect.createStatement();
             //Create sql
             String sql = "INSERT INTO pwmanager (ID,Username,Password,SecretKey) Values ('" +ID+"','"+Username+"','"+Password+"','"+SecretKey+"');";
-            boolean create = state.execute(sql);
-            ResultSet get = state.executeQuery("SELECT ID,Username,Password,SecretKey FROM pwmanager;");
+            state.execute(sql);
             connect.commit();
             //Processing SQL-Information
             System.out.println("User Erstellt");
