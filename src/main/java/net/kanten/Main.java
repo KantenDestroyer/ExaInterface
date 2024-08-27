@@ -82,7 +82,7 @@ public class Main {
                     break;
                 case "--gui":
                 case "-g":
-
+                    System.out.println("Start GUI");
                     break;
                 default:
                     System.out.println("\n Its a Master-build argument are:\n");
