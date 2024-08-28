@@ -36,7 +36,7 @@ public class Main {
                     new clearTerminal();
                     System.out.print("Enter Adresse: ");
                     String serverAdress = scan.nextLine();
-                    net.kanten.client.Main.run(serverAdress);
+                    net.kanten.client.Master.run(serverAdress);
                     break;
                 case "e":
                     System.out.print("d to Decrypt, e to encrypt:");
