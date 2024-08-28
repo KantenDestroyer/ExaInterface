@@ -1,5 +1,8 @@
 package net.kanten;
 
+import javafx.application.Application;
+import net.kanten.client.Master;
+import net.kanten.client.clientApplication;
 import net.kanten.server.database;
 import net.kanten.utils.Cryptographic;
 import net.kanten.utils.clearTerminal;
@@ -13,6 +16,8 @@ import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Random;
 import java.util.Scanner;
+
+import static javafx.application.Application.launch;
 
 //This Main Class is only for Test Purpose!!!
 public class Main {
@@ -36,7 +41,7 @@ public class Main {
                     new clearTerminal();
                     System.out.print("Enter Adresse: ");
                     String serverAdress = scan.nextLine();
-                    net.kanten.client.Master.run(serverAdress);
+                    Master.run(serverAdress);
                     break;
                 case "e":
                     System.out.print("d to Decrypt, e to encrypt:");
@@ -83,6 +88,7 @@ public class Main {
                 case "--gui":
                 case "-g":
                     System.out.println("Start GUI");
+                    clientApplication.start();
                     break;
                 default:
                     System.out.println("\n Its a Master-build argument are:\n");
