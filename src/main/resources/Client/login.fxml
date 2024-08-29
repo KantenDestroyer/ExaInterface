@@ -3,13 +3,13 @@
 <?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
 
-
 <Pane xmlns="http://javafx.com/javafx/11.0.14-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="net.kanten.client.clientController">
    <children>
       <AnchorPane prefHeight="64.0" prefWidth="600.0">
          <ImageView fx:id="Logo" fitHeight="50.0" fitWidth="200.0" layoutX="200.0" layoutY="7.0" pickOnBounds="true" preserveRatio="true">
-            <Image url="@/Client/assets/exatrek-text.png" />
-         </ImageView>
+            <image>
+               <Image url="@assets/exatrek-text.png" />
+            </image></ImageView>
       </AnchorPane>
       <AnchorPane prefHeight="600.0" prefWidth="64.0" />
    </children>

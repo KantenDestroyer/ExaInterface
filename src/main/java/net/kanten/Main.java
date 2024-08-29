@@ -17,8 +17,6 @@ import java.util.Arrays;
 import java.util.Random;
 import java.util.Scanner;
 
-import static javafx.application.Application.launch;
-
 //This Main Class is only for Test Purpose!!!
 public class Main {
     static Cryptographic cry = new Cryptographic();
@@ -98,6 +96,7 @@ public class Main {
                     System.out.println(" -g     --gui       |" + "to start gui");
                     System.out.println(" e                  |" + "to test Cryptographic");
                     System.out.println(" d                  |" + "to test database");
+                    Application.launch(clientApplication.class, args);
                     break;
             }
         }else {
@@ -108,6 +107,7 @@ public class Main {
             System.out.println(" -g     --gui       |" + "to start gui");
             System.out.println(" e                  |" + "to test Cryptographic");
             System.out.println(" d                  |" + "to test database");
+            Application.launch(clientApplication.class, args);
         }
     }
 }
