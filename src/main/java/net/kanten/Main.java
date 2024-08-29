@@ -88,7 +88,7 @@ public class Main {
                 case "--gui":
                 case "-g":
                     System.out.println("Start GUI");
-                    clientApplication.start();
+                    Application.launch(clientApplication.class, args);
                     break;
                 default:
                     System.out.println("\n Its a Master-build argument are:\n");

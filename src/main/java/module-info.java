@@ -10,4 +10,5 @@ module net.kanten.exainteface {
     requires org.mariadb.jdbc;
     requires jdk.httpserver;
     requires com.sun.jna.platform;
+    exports net.kanten.client;
 }
