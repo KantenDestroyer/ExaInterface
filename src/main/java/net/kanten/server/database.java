@@ -2,15 +2,103 @@ package net.kanten.server;
 
 import java.sql.*;
 import java.util.Arrays;
+import java.util.HashMap;
 
+import net.kanten.utils.clearTerminal;
+import net.kanten.utils.readInput;
 import org.mariadb.jdbc.Configuration;
 import org.mariadb.jdbc.Driver;
 
 public class database{
-    private final String user ="root";
-    private final String passowrd="544807";
-    String url = String.format("jdbc:mariadb://localhost:3306/exa?user=%s&password=%s",this.user,this.passowrd);
+    private HashMap<String,String> info = new HashMap<>();
+    private String address ="localhost";
+    private String database="exa";
+    private String user ="root";
+    private String password ="544807";
+    private String UserTable="Users";
+    private String sPasswordTable="sPassword";
+    private String pAccessTable ="pAcess";
+    private String url;
 
+    public database(){
+        new clearTerminal();
+        System.out.println("Default-Test Information:");
+        System.out.printf("""
+                address: %s
+                database: %s
+                user: %s
+                password: %s
+                UserTable: %s
+                sPasswordTable: %s
+                pAccessTable: %s
+                """,
+                this.address,
+                this.database,
+                this.user,
+                this.password,
+                this.UserTable,
+                this.sPasswordTable,
+                this.pAccessTable
+        );
+        System.out.println("Wanna Change Information");
+        readInput in = new readInput("[Y]ey or [N]o ->");
+        String codition = in.get();
+        if(codition.equalsIgnoreCase("y") || codition.equalsIgnoreCase("yes")){
+            new clearTerminal();
+            System.out.println("Press Enter to set Default");
+
+            System.out.println("Enter Address");
+            readInput ad = new readInput(">");
+            if(!ad.isEmpty()) info.put("address",ad.get());
+            else info.put("address", this.address);
+
+            System.out.println("Enter database");
+            readInput da = new readInput(">");
+            if(!da.isEmpty()) info.put("database",da.get());
+            else info.put("database", this.database);
+
+            System.out.println("Enter user");
+            readInput us = new readInput(">");
+            if(!us.isEmpty()) info.put("user", us.get());
+            else info.put("user", this.user);
+
+            System.out.println("Enter password");
+            readInput pa = new readInput(">");
+            if(!pa.isEmpty())info.put("password", pa.get());
+            else info.put("password",this.password);
+
+            System.out.println("Enter UserTable");
+            readInput ut = new readInput(">");
+            if(!ut.isEmpty())info.put("UserTable",ut.get());
+            else info.put("UserTable", this.UserTable);
+
+            System.out.println("Enter sPasswordTable");
+            readInput sp = new readInput(">");
+            if(!sp.isEmpty())info.put("sPasswordTable",sp.get());
+            else info.put("sPasswordTable",this.sPasswordTable);
+
+            System.out.println("Enter pAccessTable");
+            readInput at = new readInput(">");
+            if(!at.isEmpty())info.put("pAccessTable", at.get());
+            else info.put("pAccessTable", this.pAccessTable);
+
+        }else{
+            new clearTerminal();
+            System.out.println("Set Default Information");
+            info.put("address", this.address);
+            info.put("database", this.database);
+            info.put("user", this.user);
+            info.put("password",this.password);
+            info.put("UserTable", this.UserTable);
+            info.put("sPasswordTable",this.sPasswordTable);
+            info.put("pAccessTable", this.pAccessTable);
+        }
+        System.out.println("Current Information");
+        for(String i: info.keySet()){
+            System.out.println(i +": "+info.get(i));
+        }
+        url = String.format("jdbc:mariadb://%s:3306/%s?user=%s&password=%s",info.get("address"),info.get("database"),info.get("user"),info.get("password"));
+    }
     public void print() {
         try{
             //init

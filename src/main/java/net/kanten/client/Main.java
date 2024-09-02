@@ -1,10 +1,12 @@
 package net.kanten.client;
 
 import net.kanten.utils.clearTerminal;
+
+import java.io.IOException;
 import java.util.Scanner;
 
 public class Main {
-    public static void main(String[] args) {
+    public static void main() {
         Scanner caner = new Scanner(System.in);
         new clearTerminal();
         System.out.println("[S]erver or [G]ui?");
@@ -24,5 +26,8 @@ public class Main {
                 System.out.println("wrong argument");
                 break;
         }
+    }
+    public static void main(String[] args) throws IOException {
+        main();
     }
 }

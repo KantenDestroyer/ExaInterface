@@ -14,6 +14,7 @@ import java.util.Arrays;
 import java.util.function.Consumer;
 
 public class Server {
+    static database db = new database();
     public void run() {
         new clearTerminal();
         //INIT
@@ -49,7 +50,6 @@ public class Server {
         public void run() {
             try {
                 Cryptographic cry = new Cryptographic();
-                database db = new database();
                 Socket socket;
                 socket = this.socket.accept();
                 ObjectOutputStream output = new ObjectOutputStream(socket.getOutputStream());

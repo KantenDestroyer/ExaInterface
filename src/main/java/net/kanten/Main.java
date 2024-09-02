@@ -36,10 +36,7 @@ public class Main {
                     break;
                 case "-c":
                 case "--client":
-                    new clearTerminal();
-                    System.out.print("Enter Adresse: ");
-                    String serverAdress = scan.nextLine();
-                    Master.run(serverAdress);
+                    net.kanten.client.Main.main();
                     break;
                 case "e":
                     System.out.print("d to Decrypt, e to encrypt:");
@@ -78,10 +75,13 @@ public class Main {
                     break;
                 case "d":
                     database db =new database();
+                    db.print();
+                    /*
                     db.createUser("1","kanten","Iokl544807",Cryptographic.convertSecretKeyToString(cry.createKey()));
                     db.print();
                     db.deleteUser("1");
                     System.out.println(db.getPrint());
+                    */
                     break;
                 case "--gui":
                 case "-g":

@@ -1,12 +1,14 @@
 package net.kanten.server;
 
 import net.kanten.server.Webserver.Webserver;
+import net.kanten.utils.clearTerminal;
 
 import java.io.IOException;
 import java.net.ServerSocket;
 
 public class Main extends Thread{
     public static void main(String chose) throws IOException {
+        new clearTerminal();
         chose = chose.toLowerCase();
         switch(chose){
             case"webserver":
