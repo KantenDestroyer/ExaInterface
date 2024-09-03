@@ -4,14 +4,11 @@ import net.kanten.utils.Cryptographic;
 import net.kanten.utils.clearTerminal;
 
 import java.io.*;
-import java.lang.reflect.Array;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.function.Consumer;
 
 public class Server {
     static database db = new database();
@@ -86,9 +83,9 @@ public class Server {
                     case "print":
                         System.out.println("Print Database");
                         System.out.println("Information:");
-                        db.print();
+                        db.printUser();
                         System.out.println("Sending to Client");
-                        output.writeObject(db.getPrint());
+                        output.writeObject(db.getPrintUser());
                         break;
                     case "help":
                         System.out.print("Help command\n");

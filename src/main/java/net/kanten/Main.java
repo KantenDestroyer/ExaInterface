@@ -75,7 +75,7 @@ public class Main {
                     break;
                 case "d":
                     database db =new database();
-                    db.print();
+                    db.printUser();
                     /*
                     db.createUser("1","kanten","Iokl544807",Cryptographic.convertSecretKeyToString(cry.createKey()));
                     db.print();
