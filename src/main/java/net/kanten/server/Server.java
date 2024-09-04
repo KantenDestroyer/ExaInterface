@@ -2,6 +2,7 @@ package net.kanten.server;
 
 import net.kanten.utils.Cryptographic;
 import net.kanten.utils.clearTerminal;
+import net.kanten.utils.readInput;
 
 import java.io.*;
 import java.net.ServerSocket;
@@ -58,7 +59,7 @@ public class Server {
                 System.out.print(socket + "\n");
                 //TODO: Update Commands
                 switch (clientInformation[0].toLowerCase()) {
-                    case "create":
+                    case "createuser":
                         System.out.println("generated Secret Key:");
                         String SK = Cryptographic.convertSecretKeyToString(cry.createKey());
                         System.out.println("User Information:");
@@ -72,7 +73,7 @@ public class Server {
                         System.out.println(Message);
                         output.writeObject(Message);
                         break;
-                    case "delete":
+                    case "deleteuser":
                         System.out.println("Delete User");
                         System.out.println("Information:");
                         System.out.println("ID: " + clientInformation[1]);
@@ -83,10 +84,30 @@ public class Server {
                         break;
                     case "print":
                         System.out.println("Print Database");
-                        System.out.println("Information:");
+                        System.out.println("Users Information:");
+                        db.printUser();
+                        db.printSPassowrds();
+                        db.printPAccess();
+                        System.out.println("Sending to Client");
+                        output.writeObject("look server");
+                        break;
+                    case "getuser":
+                        System.out.println("Users Information:");
                         db.printUser();
                         System.out.println("Sending to Client");
                         output.writeObject(db.getPrintUser());
+                        break;
+                    case "getpasswords":
+                        System.out.println("Users Information:");
+                        db.printSPassowrds();
+                        System.out.println("Sending to Client");
+                        output.writeObject(db.getPintSPassowrds());
+                        break;
+                    case "getaccess":
+                        System.out.println("Users Information:");
+                        db.printPAccess();
+                        System.out.println("Sending to Client");
+                        output.writeObject(db.getPrintPAccess());
                         break;
                     case "help":
                         System.out.print("Help command\n");

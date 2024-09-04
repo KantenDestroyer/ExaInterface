@@ -22,7 +22,7 @@ public class database{
         String password = "544807";
         String userTable = "Users";
         String sPasswordTable = "sPassword";
-        String pAccessTable = "pAcess";
+        String pAccessTable = "pAccess";
         System.out.printf("""
                 address: %s
                 database: %s
@@ -108,19 +108,21 @@ public class database{
             connect.setAutoCommit(false);
             Statement state = connect.createStatement();
             //Create GET
-            ResultSet result = state.executeQuery("SELECT ID,Username,Password,SecretKey FROM " + info.get("userTable")+";");
+            ResultSet result = state.executeQuery("SELECT ID,Username,Password,SecretKey,Role FROM " + info.get("userTable")+";");
             connect.commit();
             //rocessing SQL-Information
-            String header = "\nID  |   Username    |   Password    |   SecretKey";
+            String header = "ID  |   Username    |   Password    |   SecretKey    |   Role";
             String[] body = new String[255];
             int amount = 0;
+            System.out.println("\n"+info.get("userTable"));
             System.out.println(header);
             while(result.next()) {
-                body[amount] = String.format("%s  |   %s  |   %s  |   %s\n",
+                body[amount] = String.format("%s  |   %s  |   %s  |   %s    | %s\n",
                         result.getString(1),
                         result.getString(2),
                         result.getString(3),
-                        result.getString(4));
+                        result.getString(4),
+                        result.getString(5));
                 System.out.printf(body[amount]);
                 amount++;
             }
@@ -135,19 +137,19 @@ public class database{
             connect.setAutoCommit(false);
             Statement state = connect.createStatement();
             //Create GET
-            ResultSet result = state.executeQuery("SELECT ID,Username,Password,SecretKey FROM " + info.get("sPasswordTable")+";");
+            ResultSet result = state.executeQuery("SELECT pID,sPassword,owner FROM " + info.get("sPasswordTable")+";");
             connect.commit();
             //rocessing SQL-Information
-            String header = "\nID  |   Username    |   Password    |   SecretKey";
+            String header = "pID  |   sPassword     |   Owner";
             String[] body = new String[255];
             int amount = 0;
+            System.out.println("\n"+info.get("sPasswordTable"));
             System.out.println(header);
             while(result.next()) {
-                body[amount] = String.format("%s  |   %s  |   %s  |   %s\n",
+                body[amount] = String.format("%s  |   %s  |   %s\n",
                         result.getString(1),
                         result.getString(2),
-                        result.getString(3),
-                        result.getString(4));
+                        result.getString(3));
                 System.out.printf(body[amount]);
                 amount++;
             }
@@ -162,19 +164,18 @@ public class database{
             connect.setAutoCommit(false);
             Statement state = connect.createStatement();
             //Create GET
-            ResultSet result = state.executeQuery("SELECT ID,Username,Password,SecretKey FROM " + info.get("pAccessTable")+";");
+            ResultSet result = state.executeQuery("SELECT ID,pID FROM " + info.get("pAccessTable")+";");
             connect.commit();
             //rocessing SQL-Information
-            String header = "\nID  |   Username    |   Password    |   SecretKey";
+            String header = "ID  |   pID";
             String[] body = new String[255];
             int amount = 0;
+            System.out.println("\n"+info.get("pAccessTable"));
             System.out.println(header);
             while(result.next()) {
-                body[amount] = String.format("%s  |   %s  |   %s  |   %s\n",
+                body[amount] = String.format("%s  |   %s\n",
                         result.getString(1),
-                        result.getString(2),
-                        result.getString(3),
-                        result.getString(4));
+                        result.getString(2));
                 System.out.printf(body[amount]);
                 amount++;
             }
@@ -191,29 +192,33 @@ public class database{
             connect.setAutoCommit(false);
             Statement state = connect.createStatement();
             //Create GET
-            ResultSet result = state.executeQuery("SELECT ID,Username,Password,SecretKey FROM " + info.get("userTable")+";");
-            ResultSet result1 = state.executeQuery("SELECT count(ID) FROM pwmanager" + info.get("userTable")+";");
+            ResultSet result = state.executeQuery("SELECT ID,Username,Password,SecretKey,Role FROM " + info.get("userTable")+";");
+            ResultSet result1 = state.executeQuery("SELECT count(id) FROM " + info.get("userTable")+";");
             connect.commit();
             //rocessing SQL-Information
             int count = 0;
             if (result1.next()) {
                 count = result1.getInt(1);
             }
-            String header = "\n ID  |   Username    |   Password    |   SecretKey\n";
+            String header = "\n ID  |   Username    |   Password    |   SecretKey   |   Role\n";
             //int count = result1.getInt(1);
             String[] body = new String[count];
             int amount = 0;
             while (result.next()) {
-                body[amount] = String.format("%s  |   %s  |   %s  |   %s\n",
+                body[amount] = String.format("%s  |   %s  |   %s  |   %s    | %s\n",
                         result.getString(1),
                         result.getString(2),
                         result.getString(3),
-                        result.getString(4));
+                        result.getString(4),
+                        result.getString(5));
                 amount++;
+            }
+            for(String i: body){
+                System.out.println(i);
             }
             return header + Arrays.deepToString(body).replaceAll(",","").replace("[", " ").replace("]", "");
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            return "error";
         }
     }
     public String getPrintPAccess(){
@@ -224,7 +229,7 @@ public class database{
             Statement state = connect.createStatement();
             //Create GET
             ResultSet result = state.executeQuery("SELECT ID, pID FROM " + info.get("pAccessTable")+";");
-            ResultSet result1 = state.executeQuery("SELECT count(ID) FROM pwmanager" + info.get("pAccessTable")+";");
+            ResultSet result1 = state.executeQuery("SELECT count(ID) FROM " + info.get("pAccessTable")+";");
             connect.commit();
             //rocessing SQL-Information
             int count = 0;
@@ -243,7 +248,7 @@ public class database{
             }
             return header + Arrays.deepToString(body).replaceAll(",","").replace("[", " ").replace("]", "");
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            return "error";
         }
     }
 
@@ -254,20 +259,20 @@ public class database{
             connect.setAutoCommit(false);
             Statement state = connect.createStatement();
             //Create GET
-            ResultSet result = state.executeQuery("SELECT pID,sPassword,ID FROM " + info.get("sPasswordTable")+";");
-            ResultSet result1 = state.executeQuery("SELECT count(pID) FROM pwmanager" + info.get("sPasswordTable")+";");
+            ResultSet result = state.executeQuery("SELECT pID,sPassword,owner FROM " + info.get("sPasswordTable")+";");
+            ResultSet result1 = state.executeQuery("SELECT count(pID) FROM " + info.get("sPasswordTable")+";");
             connect.commit();
             //rocessing SQL-Information
             int count = 0;
             if (result1.next()) {
                 count = result1.getInt(1);
             }
-            String header = "\n pID  |   SPassword    |   ID\n";
+            String header = "\n pID  |   SPassword    |   Owner\n";
             //int count = result1.getInt(1);
             String[] body = new String[count];
             int amount = 0;
             while (result.next()) {
-                body[amount] = String.format("%s  |   %s  |   %ss\n",
+                body[amount] = String.format("%s  |   %s  |   %s\n",
                         result.getString(1),
                         result.getString(2),
                         result.getString(3));
@@ -275,7 +280,7 @@ public class database{
             }
             return header + Arrays.deepToString(body).replaceAll(",","").replace("[", " ").replace("]", "");
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            return "error";
         }
     }
 
@@ -287,7 +292,7 @@ public class database{
             connect.setAutoCommit(false);
             Statement state = connect.createStatement();
             //Create sql
-            String sql = "INSERT INTO "+info.get("userTable")+" (ID,Username,Password,SecretKey) Values ('" +ID+"','"+Username+"','"+Password+"','"+SecretKey+"');";
+            String sql = "INSERT INTO "+info.get("userTable")+" (ID,Username,Password,SecretKey,Role) Values ('" +ID+"','"+Username+"','"+Password+"','"+SecretKey+"','user');";
             state.execute(sql);
             connect.commit();
             //Processing SQL-Information
@@ -296,6 +301,18 @@ public class database{
             System.out.println("Error is: "+e.getMessage());
         }
     }
+    public void createPassword(String PW,int owner) {
+        try {
+            //init
+            Connection connect = Driver.connect(Configuration.parse(this.url));
+            connect.setAutoCommit(false);
+            Statement state = connect.createStatement();
+            String sql = "INSET INTO";
+        }catch(SQLException e){
+            System.out.println("Error is: "+e.getMessage());
+        }
+    }
+
 
     //Deleting
     public void deleteUser(String ID){

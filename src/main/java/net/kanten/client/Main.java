@@ -1,5 +1,6 @@
 package net.kanten.client;
 
+import javafx.application.Application;
 import net.kanten.utils.clearTerminal;
 
 import java.io.IOException;
@@ -21,6 +22,7 @@ public class Main {
                 break;
             case "g":
                 System.out.println("Start GUI");
+                Application.launch(clientApplication.class);
                 break;
             default:
                 System.out.println("wrong argument");

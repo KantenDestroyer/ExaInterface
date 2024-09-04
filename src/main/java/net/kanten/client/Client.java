@@ -31,7 +31,7 @@ public class Client {
                 String clientInput;
                 //TODO: Update Commands
                 switch (clientOutput) {
-                    case "create":
+                    case "createUser":
                         System.out.print("\nID\n");
                         System.out.print(">");
                         String cID = scan.nextLine();
@@ -49,7 +49,7 @@ public class Client {
                         System.out.print("\n Press enter to continue.....");
                         scan.nextLine();
                         break;
-                    case "delete":
+                    case "deleteUser":
                         System.out.print("\nID\n");
                         System.out.print(">");
                         String dID = scan.nextLine();
