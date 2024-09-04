@@ -1,11 +1,9 @@
 package net.kanten;
 
 import javafx.application.Application;
-import net.kanten.client.Master;
 import net.kanten.client.clientApplication;
 import net.kanten.server.database;
 import net.kanten.utils.Cryptographic;
-import net.kanten.utils.clearTerminal;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;

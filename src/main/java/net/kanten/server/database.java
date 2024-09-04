@@ -10,7 +10,7 @@ import org.mariadb.jdbc.Configuration;
 import org.mariadb.jdbc.Driver;
 
 public class database{
-    private HashMap<String,String> info = new HashMap<>();
+    private final HashMap<String,String> info = new HashMap<>();
     private final String url;
 
     public database(){
@@ -46,37 +46,37 @@ public class database{
         if(codition.equalsIgnoreCase("y") || codition.equalsIgnoreCase("yes")){
             new clearTerminal();
             System.out.println("Press Enter to set Default");
-
+            //Address from database server
             System.out.println("Enter Address");
             readInput ad = new readInput(">");
             if(ad.isEmpty()) info.put("address",ad.get());
             else info.put("address", address);
-
+            //Selected Database
             System.out.println("Enter database");
             readInput da = new readInput(">");
             if(da.isEmpty()) info.put("database",da.get());
             else info.put("database", database);
-
+            //Username to Login
             System.out.println("Enter user");
             readInput us = new readInput(">");
             if(us.isEmpty()) info.put("user", us.get());
             else info.put("user", user);
-
+            //Password to login
             System.out.println("Enter password");
             readInput pa = new readInput(">");
             if(pa.isEmpty())info.put("password", pa.get());
             else info.put("password", password);
-
+            //user Table for logging in
             System.out.println("Enter UserTable");
             readInput ut = new readInput(">");
             if(ut.isEmpty())info.put("userTable",ut.get());
             else info.put("userTable", userTable);
-
+            //Table where the Password are saved
             System.out.println("Enter sPasswordTable");
             readInput sp = new readInput(">");
             if(sp.isEmpty())info.put("sPasswordTable",sp.get());
             else info.put("sPasswordTable", sPasswordTable);
-
+            //
             System.out.println("Enter pAccessTable");
             readInput at = new readInput(">");
             if(at.isEmpty())info.put("pAccessTable", at.get());
@@ -219,7 +219,7 @@ public class database{
     public String getPrintPAccess(){
         try {
             //init
-            Connection connect = Driver.connect(Configuration.parse<(this.url));
+            Connection connect = Driver.connect(Configuration.parse(this.url));
             connect.setAutoCommit(false);
             Statement state = connect.createStatement();
             //Create GET
@@ -231,16 +231,14 @@ public class database{
             if (result1.next()) {
                 count = result1.getInt(1);
             }
-            String header = "\n ID  |   Username    |   Password    |   SecretKey\n";
+            String header = "\nID  |   pID \n";
             //int count = result1.getInt(1);
             String[] body = new String[count];
             int amount = 0;
             while (result.next()) {
-                body[amount] = String.format("%s  |   %s  |   %s  |   %s\n",
+                body[amount] = String.format("%s  |   %s \n",
                         result.getString(1),
-                        result.getString(2),
-                        result.getString(3),
-                        result.getString(4));
+                        result.getString(2));
                 amount++;
             }
             return header + Arrays.deepToString(body).replaceAll(",","").replace("[", " ").replace("]", "");
@@ -264,16 +262,15 @@ public class database{
             if (result1.next()) {
                 count = result1.getInt(1);
             }
-            String header = "\n ID  |   Username    |   Password    |   SecretKey\n";
+            String header = "\n pID  |   SPassword    |   ID\n";
             //int count = result1.getInt(1);
             String[] body = new String[count];
             int amount = 0;
             while (result.next()) {
-                body[amount] = String.format("%s  |   %s  |   %s  |   %s\n",
+                body[amount] = String.format("%s  |   %s  |   %ss\n",
                         result.getString(1),
                         result.getString(2),
-                        result.getString(3),
-                        result.getString(4));
+                        result.getString(3));
                 amount++;
             }
             return header + Arrays.deepToString(body).replaceAll(",","").replace("[", " ").replace("]", "");
@@ -282,7 +279,7 @@ public class database{
         }
     }
 
-    //create
+    //creating
     public void createUser(String ID, String Username,String Password, String SecretKey) throws SQLException {
         try{
             //init
@@ -290,15 +287,17 @@ public class database{
             connect.setAutoCommit(false);
             Statement state = connect.createStatement();
             //Create sql
-            String sql = "INSERT INTO pwmanager (ID,Username,Password,SecretKey) Values ('" +ID+"','"+Username+"','"+Password+"','"+SecretKey+"');";
+            String sql = "INSERT INTO "+info.get("userTable")+" (ID,Username,Password,SecretKey) Values ('" +ID+"','"+Username+"','"+Password+"','"+SecretKey+"');";
             state.execute(sql);
             connect.commit();
             //Processing SQL-Information
             System.out.println("User Erstellt");
         } catch (SQLException e) {
-            System.out.println("Error is:"+e.getMessage());
+            System.out.println("Error is: "+e.getMessage());
         }
     }
+
+    //Deleting
     public void deleteUser(String ID){
         try{
         //init
@@ -306,14 +305,14 @@ public class database{
         connect.setAutoCommit(false);
         Statement state = connect.createStatement();
         //Create sql
-        String sql = "DELETE FROM pwmanager WHERE pwmanager.ID = '"+ID+"';";
-        boolean create = state.execute(sql);
+        String sql = "DELETE FROM "+info.get("userTable")+" WHERE "+info.get("userTable")+".ID = '"+ID+"';";
+        state.execute(sql);
         connect.commit();
         //Processing SQL-Information
         System.out.println("User Deleted");
 
         } catch (SQLException e) {
-            System.out.println("Error is:"+e.getMessage());
+            System.out.println("Error is: "+e.getMessage());
         }
     }
 }

@@ -56,6 +56,7 @@ public class Server {
                 String Message;
                 System.out.println("Converted object:" + Arrays.toString(clientInformation));
                 System.out.print(socket + "\n");
+                //TODO: Update Commands
                 switch (clientInformation[0].toLowerCase()) {
                     case "create":
                         System.out.println("generated Secret Key:");

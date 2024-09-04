@@ -8,7 +8,7 @@ import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.Scanner;
 
-public class Master {
+public class Client {
     public static void run(String serverAddress) {
         try{
             Thread.sleep(1000);
@@ -29,6 +29,7 @@ public class Master {
                 String clientOutput = scan.nextLine();
                 String[] userInformation;
                 String clientInput;
+                //TODO: Update Commands
                 switch (clientOutput) {
                     case "create":
                         System.out.print("\nID\n");

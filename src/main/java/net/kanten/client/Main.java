@@ -17,7 +17,7 @@ public class Main {
                 new clearTerminal();
                 System.out.print("Enter Address: ");
                 String serverAddress = caner.nextLine();
-                Master.run(serverAddress);
+                Client.run(serverAddress);
                 break;
             case "g":
                 System.out.println("Start GUI");
