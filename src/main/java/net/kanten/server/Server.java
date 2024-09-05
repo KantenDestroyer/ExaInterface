@@ -63,12 +63,11 @@ public class Server {
                         System.out.println("generated Secret Key:");
                         String SK = Cryptographic.convertSecretKeyToString(cry.createKey());
                         System.out.println("User Information:");
-                        System.out.println("ID: " + clientInformation[1]);
-                        System.out.println("Username: " + clientInformation[2]);
-                        System.out.println("Password: " + clientInformation[3]);
+                        System.out.println("Username: " + clientInformation[1]);
+                        System.out.println("Password: " + clientInformation[2]);
                         System.out.println("SecretKey: " + SK);
                         System.out.println("Create User");
-                        db.createUser(clientInformation[1], clientInformation[2], clientInformation[3], SK);
+                        db.createUser(clientInformation[1], clientInformation[2], SK);
                         Message = "done for " + clientInformation[2] + ",SecretKey is: " + SK;
                         System.out.println(Message);
                         output.writeObject(Message);
@@ -118,7 +117,7 @@ public class Server {
                         output.writeObject("unknown Command\ntype \"help\" for more information");
                         break;
                 }
-            } catch (ClassNotFoundException | IOException | SQLException | NoSuchAlgorithmException e) {
+            } catch (ClassNotFoundException | IOException | NoSuchAlgorithmException e) {
                 System.out.println(e.getMessage());
             }
         }

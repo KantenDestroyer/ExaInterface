@@ -9,12 +9,9 @@ import net.kanten.utils.readInput;
 import org.mariadb.jdbc.Configuration;
 import org.mariadb.jdbc.Driver;
 
-import javax.xml.transform.Result;
-
 public class database{
     private final HashMap<String,String> info = new HashMap<>();
     private final String url;
-
     public database(){
         new clearTerminal();
         System.out.println("Default-Test Information:");
@@ -291,7 +288,29 @@ public class database{
     }
 
     //creating
-    public void createUser(String ID, String Username,String Password, String SecretKey) throws SQLException {
+    public void createUser(String Username,String Password, String SecretKey) {
+        try{
+            //init
+            Connection connect = Driver.connect(Configuration.parse(this.url));
+            connect.setAutoCommit(false);
+            Statement state = connect.createStatement();
+            //Create sql
+            String sqlAmount = "SELECT count(ID) FROM "+ info.get("userTable")+";";
+            ResultSet e = state.executeQuery(sqlAmount);
+            int amount = 0;
+            if(e.next()) {
+                amount = e.getInt(1);
+            }
+            String sql = "INSERT INTO "+info.get("userTable")+" (ID,Username,Password,SecretKey,Role) Values ('" +amount+"','"+Username+"','"+Password+"','"+SecretKey+"','user');";
+            state.execute(sql);
+            connect.commit();
+            //Processing SQL-Information
+            System.out.println("User Erstellt");
+        } catch (SQLException e) {
+            System.out.println("Error is: "+e.getMessage());
+        }
+    }
+    public void createUser(String Username,String Password, String SecretKey, String ID) {
         try{
             //init
             Connection connect = Driver.connect(Configuration.parse(this.url));
@@ -307,7 +326,7 @@ public class database{
             System.out.println("Error is: "+e.getMessage());
         }
     }
-    public void createPassword(String Username, String PW, int owner, String information) {
+    public void createPassword(String Username, String PW, String owner, String information) {
         try {
             //init
             Connection connect = Driver.connect(Configuration.parse(this.url));
@@ -319,7 +338,6 @@ public class database{
             if(e.next()) {
                 amount = e.getInt(1);
             }
-            System.out.println(amount);
             String sql = "INSERT INTO "+ info.get("sPasswordTable")+" (pID, sUsername, sPassword, information, owner) values ('"+amount+"','"+Username+"','"+PW+"','"+information+"','"+owner+"');";
             state.execute(sql);
             connect.commit();
@@ -328,7 +346,7 @@ public class database{
             System.out.println("Error is: "+e.getMessage());
         }
     }
-    public void createPassword(String Username, String PW, int owner) {
+    public void createPassword(String Username, String PW, String owner) {
         try {
             //init
             Connection connect = Driver.connect(Configuration.parse(this.url));
@@ -384,5 +402,124 @@ public class database{
         } catch (SQLException e) {
             System.out.println("Error is: "+e.getMessage());
         }
+    }
+    public void deletePassword(String pID){
+        try{
+            //init
+            Connection connect = Driver.connect(Configuration.parse(this.url));
+            connect.setAutoCommit(false);
+            Statement state = connect.createStatement();
+            //Create sql
+            String deleteAccess = "DELETE FROM "+info.get("pAccessTable")+" WHERE "+info.get("pAccessTable")+".pID = '"+pID+"';";
+            String deletePassword = "DELETE FROM "+info.get("sPasswordTable")+" WHERE "+info.get("sPasswordTable")+".pID = '"+pID+"';";
+            state.executeQuery(deleteAccess);
+            state.executeQuery(deletePassword);
+            connect.commit();
+            //Processing SQL-Information
+            System.out.println("Password Deleted");
+
+        } catch (SQLException e) {
+            System.out.println("Error is: "+e.getMessage());
+        }
+    }
+    public void revokeAccess(String ID, String pID){
+        try{
+            //init
+            Connection connect = Driver.connect(Configuration.parse(this.url));
+            connect.setAutoCommit(false);
+            Statement state = connect.createStatement();
+            //Create sql
+            String deleteAccess = "DELETE FROM "+info.get("pAccessTable")+" WHERE "+info.get("pAccessTable")+".pID = '"+pID+"' && "+info.get("pAccessTable")+".ID = '"+ID+"';";
+            state.executeQuery(deleteAccess);
+            connect.commit();
+            //Processing SQL-Information
+            System.out.println("Password Deleted");
+
+        } catch (SQLException e) {
+            System.out.println("Error is: "+e.getMessage());
+        }
+    }
+
+    //additions
+    public boolean isUserRegistered(String Username, String Password){
+        try{
+            //init
+            Connection connect = Driver.connect(Configuration.parse(this.url));
+            connect.setAutoCommit(false);
+            Statement state = connect.createStatement();
+            //Create sql with state
+            String check = "select "+info.get("userTable")+".Username='"+Username+"' && "+info.get("userTable")+".Password='"+Password+"' from "+info.get("userTable")+" where "+info.get("userTable")+".Username='"+Username+"' && "+info.get("userTable")+".Password='"+Password+"';";
+            ResultSet set = state.executeQuery(check);
+            set.next();
+            connect.commit();
+            //Processing SQL-Information
+            return set.getString(1).equalsIgnoreCase(String.valueOf(1));
+        } catch (SQLException e) {
+            System.out.println("Error is: "+e.getMessage());
+        }
+        return false;
+    }
+    public void setUserToAdmin(String ID){
+        try{
+            //init
+            Connection connect = Driver.connect(Configuration.parse(this.url));
+            connect.setAutoCommit(false);
+            Statement state = connect.createStatement();
+            //Create sql with state
+            String giveAdmin = "Update "+info.get("userTable")+" SET Role = 'admin' WHERE "+info.get("userTable")+".ID = "+ID+";";
+            state.execute(giveAdmin);
+            System.out.println(giveAdmin);
+            connect.commit();
+            //Processing SQL-Information
+            System.out.println(ID+" is now Admin");
+
+        } catch (SQLException e) {
+            System.out.println("Error is: "+e.getMessage());
+        }
+    }
+    public void setAdminToUser(String ID){
+        try{
+            //init
+            Connection connect = Driver.connect(Configuration.parse(this.url));
+            connect.setAutoCommit(false);
+            Statement state = connect.createStatement();
+            //Create sql with state
+            String giveAdmin = "Update "+info.get("userTable")+" SET Role = 'admin' WHERE "+info.get("userTable")+".ID = "+ID+";";
+            state.execute(giveAdmin);
+            System.out.println(giveAdmin);
+            connect.commit();
+            //Processing SQL-Information
+            System.out.println(ID+" is now Admin");
+
+        } catch (SQLException e) {
+            System.out.println("Error is: "+e.getMessage());
+        }
+    }
+
+    public String[] getIDByUsername(String Username){
+        try{
+            //init
+            Connection connect = Driver.connect(Configuration.parse(this.url));
+            connect.setAutoCommit(false);
+            Statement state = connect.createStatement();
+            //Create sql with state
+            String getAmount = "select count(ID) from " +info.get("userTable") +" where "+info.get("userTable")+".Username='"+Username+"';";
+            String getID = "select ID,Username,Role from " +info.get("userTable") +" where "+info.get("userTable")+".Username='"+Username+"';";
+            ResultSet set = state.executeQuery(getID);
+            ResultSet set1 = state.executeQuery(getAmount);
+            connect.commit();
+            set.next();
+            int amount = 0;
+            String[] getter = new String[set1.getInt(1)];
+            while(set.next()){
+                getter[amount] = String.format(" %s  |   %s  |   %s \n", set.getString(1),set.getString(2),set.getString(3));
+                amount++;
+            }
+            //Processing SQL-Information
+            return getter;
+        } catch (SQLException e) {
+            System.out.println("Error is: "+e.getMessage());
+        }
+        return null;
     }
 }

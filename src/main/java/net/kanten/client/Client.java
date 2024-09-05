@@ -32,9 +32,6 @@ public class Client {
                 //TODO: Update Commands
                 switch (clientOutput) {
                     case "createUser":
-                        System.out.print("\nID\n");
-                        System.out.print(">");
-                        String cID = scan.nextLine();
                         System.out.print("\nUsername\n");
                         System.out.print(">");
                         String cUsername = scan.nextLine();
@@ -42,7 +39,7 @@ public class Client {
                         System.out.print(">");
                         String cPassword = scan.nextLine();
                         System.out.print("\nSending to Server\n");
-                        userInformation = new String[]{clientOutput, cID, cUsername, cPassword};
+                        userInformation = new String[]{clientOutput, cUsername, cPassword};
                         output.writeObject(userInformation);
                         clientInput = (String) input.readObject();
                         System.out.println(clientInput);

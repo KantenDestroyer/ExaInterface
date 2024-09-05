@@ -73,9 +73,11 @@ public class Main {
                     break;
                 case "d":
                     database db =new database();
-                    db.createPassword("AASasd","asdad",0);
-                    db.printSPassowrds();
+                    System.out.println(db.isUserRegistered("marin", "kanten"));
+                    System.out.println(Arrays.toString(db.getIDByUsername("martin")));
                     /*
+                    db.createPassword("AASasd","asdad","0");
+                    db.printSPassowrds();
                     db.createUser("1","kanten","Iokl544807",Cryptographic.convertSecretKeyToString(cry.createKey()));
                     db.print();
                     db.deleteUser("1");
