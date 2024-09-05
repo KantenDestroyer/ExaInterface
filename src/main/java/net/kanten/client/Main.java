@@ -30,6 +30,7 @@ public class Main {
         }
     }
     public static void main(String[] args) throws IOException {
-        main();
+        if(args[0].equalsIgnoreCase("client") || args[0].equalsIgnoreCase("c") || args[0].equalsIgnoreCase("-c"))main();
+        Application.launch(clientApplication.class, args);
     }
 }

@@ -9,6 +9,8 @@ import net.kanten.utils.readInput;
 import org.mariadb.jdbc.Configuration;
 import org.mariadb.jdbc.Driver;
 
+import javax.xml.transform.Result;
+
 public class database{
     private final HashMap<String,String> info = new HashMap<>();
     private final String url;
@@ -137,19 +139,21 @@ public class database{
             connect.setAutoCommit(false);
             Statement state = connect.createStatement();
             //Create GET
-            ResultSet result = state.executeQuery("SELECT pID,sPassword,owner FROM " + info.get("sPasswordTable")+";");
+            ResultSet result = state.executeQuery("SELECT pID,sUsername,sPassword,information,owner FROM " + info.get("sPasswordTable")+";");
             connect.commit();
             //rocessing SQL-Information
-            String header = "pID  |   sPassword     |   Owner";
+            String header = "pID  |     sUsername   |   sPassword   |   information    |   Owner";
             String[] body = new String[255];
             int amount = 0;
             System.out.println("\n"+info.get("sPasswordTable"));
             System.out.println(header);
             while(result.next()) {
-                body[amount] = String.format("%s  |   %s  |   %s\n",
+                body[amount] = String.format("%s  |   %s  |   %s  |   %s  |   %s\n",
                         result.getString(1),
                         result.getString(2),
-                        result.getString(3));
+                        result.getString(3),
+                        result.getString(4),
+                        result.getString(5));
                 System.out.printf(body[amount]);
                 amount++;
             }
@@ -259,7 +263,7 @@ public class database{
             connect.setAutoCommit(false);
             Statement state = connect.createStatement();
             //Create GET
-            ResultSet result = state.executeQuery("SELECT pID,sPassword,owner FROM " + info.get("sPasswordTable")+";");
+            ResultSet result = state.executeQuery("SELECT pID,sUsername,sPassword,information,owner FROM " + info.get("sPasswordTable")+";");
             ResultSet result1 = state.executeQuery("SELECT count(pID) FROM " + info.get("sPasswordTable")+";");
             connect.commit();
             //rocessing SQL-Information
@@ -272,10 +276,12 @@ public class database{
             String[] body = new String[count];
             int amount = 0;
             while (result.next()) {
-                body[amount] = String.format("%s  |   %s  |   %s\n",
+                body[amount] = String.format("%s  |   %s  |   %s  |   %s  |   %s\n",
                         result.getString(1),
                         result.getString(2),
-                        result.getString(3));
+                        result.getString(3),
+                        result.getString(4),
+                        result.getString(5));
                 amount++;
             }
             return header + Arrays.deepToString(body).replaceAll(",","").replace("[", " ").replace("]", "");
@@ -301,14 +307,61 @@ public class database{
             System.out.println("Error is: "+e.getMessage());
         }
     }
-    public void createPassword(String PW,int owner) {
+    public void createPassword(String Username, String PW, int owner, String information) {
         try {
             //init
             Connection connect = Driver.connect(Configuration.parse(this.url));
             connect.setAutoCommit(false);
             Statement state = connect.createStatement();
-            String sql = "INSET INTO";
+            String sqlAmount = "SELECT count(pID) FROM "+ info.get("sPasswordTable")+";";
+            ResultSet e = state.executeQuery(sqlAmount);
+            int amount = 0;
+            if(e.next()) {
+                amount = e.getInt(1);
+            }
+            System.out.println(amount);
+            String sql = "INSERT INTO "+ info.get("sPasswordTable")+" (pID, sUsername, sPassword, information, owner) values ('"+amount+"','"+Username+"','"+PW+"','"+information+"','"+owner+"');";
+            state.execute(sql);
+            connect.commit();
+            System.out.println("Password saved");
         }catch(SQLException e){
+            System.out.println("Error is: "+e.getMessage());
+        }
+    }
+    public void createPassword(String Username, String PW, int owner) {
+        try {
+            //init
+            Connection connect = Driver.connect(Configuration.parse(this.url));
+            connect.setAutoCommit(false);
+            Statement state = connect.createStatement();
+            String sqlAmount = "SELECT count(pID) FROM "+ info.get("sPasswordTable")+";";
+            ResultSet e = state.executeQuery(sqlAmount);
+            int amount = 0;
+            if(e.next()) {
+                amount = e.getInt(1);
+            }
+            System.out.println(amount);
+            String sql = "INSERT INTO "+ info.get("sPasswordTable")+" (pID, sUsername, sPassword, owner) values ('"+amount+"','"+Username+"','"+PW+"','"+owner+"');";
+            state.execute(sql);
+            connect.commit();
+            System.out.println("Password saved");
+        }catch(SQLException e){
+            System.out.println("Error is: "+e.getMessage());
+        }
+    }
+    public void giveAccess(String from, String to){
+        try{
+            //init
+            Connection connect = Driver.connect(Configuration.parse(this.url));
+            connect.setAutoCommit(false);
+            Statement state = connect.createStatement();
+            //Create sql
+            String sql = "INSERT INTO "+info.get("pAccessTable")+" (ID, pID) Values ('"+from+"','"+to+"');";
+            state.execute(sql);
+            connect.commit();
+            //Processing SQL-Information
+            System.out.println("Zugang geben");
+        } catch (SQLException e) {
             System.out.println("Error is: "+e.getMessage());
         }
     }
