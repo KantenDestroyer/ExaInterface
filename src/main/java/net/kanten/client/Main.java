@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.util.Scanner;
 
 public class Main {
-    public static void main() {
+    public static void main() throws IOException {
         Scanner caner = new Scanner(System.in);
         new clearTerminal();
         System.out.println("[S]erver or [G]ui?");

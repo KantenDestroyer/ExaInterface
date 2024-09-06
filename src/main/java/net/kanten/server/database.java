@@ -214,9 +214,6 @@ public class database{
                         result.getString(5));
                 amount++;
             }
-            for(String i: body){
-                System.out.println(i);
-            }
             return header + Arrays.deepToString(body).replaceAll(",","").replace("[", " ").replace("]", "");
         } catch (SQLException e) {
             return "error";
@@ -496,30 +493,34 @@ public class database{
         }
     }
 
-    public String[] getIDByUsername(String Username){
+    public String getIDByUsername(String Username){
         try{
             //init
             Connection connect = Driver.connect(Configuration.parse(this.url));
             connect.setAutoCommit(false);
             Statement state = connect.createStatement();
             //Create sql with state
-            String getAmount = "select count(ID) from " +info.get("userTable") +" where "+info.get("userTable")+".Username='"+Username+"';";
-            String getID = "select ID,Username,Role from " +info.get("userTable") +" where "+info.get("userTable")+".Username='"+Username+"';";
-            ResultSet set = state.executeQuery(getID);
-            ResultSet set1 = state.executeQuery(getAmount);
+            ResultSet set1 = state.executeQuery("SELECT count(ID) FROM " +info.get("userTable") +" WHERE "+info.get("userTable")+".Username='"+Username+"';");
+            ResultSet set = state.executeQuery("SELECT ID,Username,Role FROM " +info.get("userTable") +" WHERE "+info.get("userTable")+".Username='"+Username+"';");
             connect.commit();
-            set.next();
+            int count = 0;
+            if (set1.next()) {
+                count = set1.getInt(1);
+            }
+            String header = "\n ID  |   Username    |   Role\n";
+            String[] body = new String[count];
             int amount = 0;
-            String[] getter = new String[set1.getInt(1)];
-            while(set.next()){
-                getter[amount] = String.format(" %s  |   %s  |   %s \n", set.getString(1),set.getString(2),set.getString(3));
+            while (set.next()) {
+                body[amount] = String.format("%s  |   %s    |  %s\n",
+                        set.getString(1),
+                        set.getString(2),
+                        set.getString(3));
                 amount++;
             }
-            //Processing SQL-Information
-            return getter;
+            return header+ Arrays.deepToString(body).replaceAll(",","").replace("[", " ").replace("]", "");
         } catch (SQLException e) {
             System.out.println("Error is: "+e.getMessage());
         }
-        return null;
+        return "error";
     }
 }
