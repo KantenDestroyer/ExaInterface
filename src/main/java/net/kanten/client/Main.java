@@ -18,6 +18,7 @@ public class Main {
                 new clearTerminal();
                 System.out.print("Enter Address: ");
                 String serverAddress = caner.nextLine();
+                System.out.println(serverAddress);
                 Client.run(serverAddress);
                 break;
             case "g":

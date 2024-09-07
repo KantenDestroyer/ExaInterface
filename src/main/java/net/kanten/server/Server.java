@@ -54,7 +54,7 @@ public class Server {
                 ObjectInputStream input = new ObjectInputStream(socket.getInputStream());
                 Object clientInput = input.readObject();
                 String[] clientInformation = (String[]) clientInput;
-                String[] Message;
+                String Message;
                 System.out.println("Converted object:" + Arrays.toString(clientInformation));
                 System.out.print(socket + "\n");
                 //TODO: Update Commands
@@ -68,8 +68,8 @@ public class Server {
                         System.out.println("SecretKey: " + SK);
                         System.out.println("Create User");
                         db.createUser(clientInformation[1], clientInformation[2], SK);
-                        Message = new String[]{"done for " + clientInformation[2] + ",SecretKey is: " + SK};
-                        System.out.println(Arrays.toString(Message));
+                        Message = "done for " + clientInformation[2] + ",SecretKey is: " + SK;
+                        System.out.println(Message);
                         output.writeObject(Message);
                         break;
                     case "deleteuser":
@@ -78,7 +78,7 @@ public class Server {
                         System.out.println("ID: " + clientInformation[1]);
                         System.out.println("Deleting User");
                         db.deleteUser(clientInformation[1]);
-                        Message = new String[]{"User Deleted"};
+                        Message = "User Deleted";
                         output.writeObject(Message);
                         break;
                     case "print":

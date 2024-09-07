@@ -28,10 +28,9 @@ public class Client {
                 Scanner scan = new Scanner(System.in);
                 String clientOutput = scan.nextLine();
                 String[] userInformation;
-                String[] clientInput;
-                //TODO: Update Commands
+                String clientInput;
                 switch (clientOutput) {
-                    case "createUser":
+                    case "createuser", "createUser":
                         System.out.print("\nUsername\n");
                         System.out.print(">");
                         String cUsername = scan.nextLine();
@@ -41,20 +40,23 @@ public class Client {
                         System.out.print("\nSending to Server\n");
                         userInformation = new String[]{clientOutput, cUsername, cPassword};
                         output.writeObject(userInformation);
-                        clientInput = (String[]) input.readObject();
-                        System.out.println(Arrays.toString(clientInput));
+                        clientInput = (String) input.readObject();
+                        System.out.println(clientInput);
                         System.out.print("\n Press enter to continue.....");
                         scan.nextLine();
                         break;
-                    case "deleteUser":
+                    case "giveadmin", "giveAdmin":
+
+                        break;
+                    case "deleteuser", "deleteUser":
                         System.out.print("\nID\n");
                         System.out.print(">");
                         String dID = scan.nextLine();
                         System.out.print("\nSending to Server\n");
                         userInformation = new String[]{clientOutput, dID};
                         output.writeObject(userInformation);
-                        clientInput = (String[]) input.readObject();
-                        System.out.println(Arrays.toString(clientInput));
+                        clientInput = (String) input.readObject();
+                        System.out.println(clientInput);
                         System.out.print("\n Press enter to continue.....");
                         scan.nextLine();
                         break;
@@ -66,18 +68,19 @@ public class Client {
                         System.out.print("\nSending to Server\n");
                         userInformation = new String[]{clientOutput};
                         output.writeObject(userInformation);
-                        clientInput = (String[]) input.readObject();
-                        System.out.println(Arrays.toString(clientInput));
+                        clientInput = (String) input.readObject();
+                        System.out.println(clientInput);
                         System.out.print("\n Press enter to continue.....");
                         scan.nextLine();
                         break;
                 }
+                client.close();
                 output.close();
                 input.close();
             }
         }catch(InterruptedException | ClassNotFoundException | IOException e){
-            new showError(e);
             run(serverAddress);
+            new showError(e);
         }
     }
 }

@@ -5,9 +5,8 @@ import java.util.List;
 
 public class clearTerminal {
     private String getOperatingSystem() {
-        String os = System.getProperty("os.name");
         // System.out.println("Using System Property: " + os);
-        return os;
+        return System.getProperty("os.name");
     }
     public clearTerminal()  {
         try{

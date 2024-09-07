@@ -21,7 +21,7 @@ public class clientController {
     private ObjectInputStream input;
 
     public clientController() throws IOException {
-        try (Socket client = new Socket("localhost", 500)) {
+        try (Socket client = new Socket("10.147.20.1", 500)) {
             output = new ObjectOutputStream(client.getOutputStream());
             input = new ObjectInputStream(client.getInputStream());
         }catch(Exception e){
