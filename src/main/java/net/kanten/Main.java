@@ -43,14 +43,14 @@ public class Main {
                         System.out.print("Enter a SecretKey:");
                         String SecretKey = scan.nextLine();
                         cry.setKeyByString(SecretKey);//"q3Gwy8qBtaUvCjWpR/95heO9g6RXsLi0ieVpc9SfOBk=" <- Example SK
-                        String keyString = Cryptographic.convertSecretKeyToString(cry.getKey());
+                        String keyString = Cryptographic.convertSecretKeyToString(Cryptographic.getKey());
                         System.out.println("the key:"+keyString);
                         System.out.println("key length:"+keyString.length());
-                        System.out.println("key address:"+cry.getKey());
+                        System.out.println("key address:"+ Cryptographic.getKey());
                         System.out.println("Raw key:"+ Arrays.toString(cry.getRawKey()));
                         System.out.print("\nEnter a cryptedtext to decrypt it:");
                         String cryptedText = scan.nextLine();
-                        System.out.println(Cryptographic.decrypt(cryptedText, cry.getKey()));//"o2cMnxr6l1V6X1lGLk4X+g==" <- Example crypted text
+                        System.out.println(Cryptographic.decrypt(cryptedText));//"o2cMnxr6l1V6X1lGLk4X+g==" <- Example crypted text
                     }else if(chose.equalsIgnoreCase("e")){
                         System.out.print("Enter a SecretKey (no input Generate one):");
                         String SK = scan.nextLine();
@@ -59,31 +59,21 @@ public class Main {
                         }else{
                             cry.setKeyBySecretKey(cry.createKey());
                         }
-                        String keyString = Cryptographic.convertSecretKeyToString(cry.getKey());
+                        String keyString = Cryptographic.convertSecretKeyToString(Cryptographic.getKey());
                         System.out.println("the key:"+keyString);
                         System.out.println("key length:"+keyString.length());
-                        System.out.println("key address:"+cry.getKey());
+                        System.out.println("key address:"+ Cryptographic.getKey());
                         System.out.println("Raw key:"+ Arrays.toString(cry.getRawKey()));
                         System.out.print("\nEnter a Text to encrypt it:");
                         String Text = scan.nextLine();
-                        System.out.println(Cryptographic.encrypt(Text, cry.getKey()));
+                        System.out.println(Cryptographic.encrypt(Text));
                     }else{
                         System.out.println("wrong input");
                     }
                     break;
                 case "d":
                     database db =new database();
-                    //System.out.println(db.isUserRegistered("marin", "kanten"));
-                    System.out.println(db.getIDByUsername("martin"));
-                    System.out.println(db.getPrintUser());
-                    /*
-                    db.createPassword("AASasd","asdad","0");
-                    db.printSPassowrds();
-                    db.createUser("1","kanten","Iokl544807",Cryptographic.convertSecretKeyToString(cry.createKey()));
-                    db.print();
-                    db.deleteUser("1");
-                    System.out.println(db.getPrint());
-                    */
+                    System.out.println(db.getIDByUsername("server_admin"));
                     break;
                 case "--gui":
                 case "-g":

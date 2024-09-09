@@ -16,10 +16,8 @@ public class Main {
         switch(chose.toLowerCase()){
             case "s":
                 new clearTerminal();
-                System.out.print("Enter Address: ");
-                String serverAddress = caner.nextLine();
-                System.out.println(serverAddress);
-                Client.run(serverAddress);
+                new Client();
+                Client.run();
                 break;
             case "g":
                 System.out.println("Start GUI");

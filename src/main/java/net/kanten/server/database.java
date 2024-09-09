@@ -1,17 +1,24 @@
 package net.kanten.server;
 
+import java.security.InvalidKeyException;
 import java.sql.*;
 import java.util.Arrays;
 import java.util.HashMap;
 
+import net.kanten.utils.Cryptographic;
 import net.kanten.utils.clearTerminal;
 import net.kanten.utils.readInput;
 import org.mariadb.jdbc.Configuration;
 import org.mariadb.jdbc.Driver;
 
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
+
 public class database{
     private final HashMap<String,String> info = new HashMap<>();
     private final String url;
+    private String sk;
+    protected Cryptographic cry;
     public database(){
         new clearTerminal();
         System.out.println("Default-Test Information:");
@@ -97,6 +104,23 @@ public class database{
             System.out.println(i +": "+info.get(i));
         }
         url = String.format("jdbc:mariadb://%s:3306/%s?user=%s&password=%s",info.get("address"),info.get("database"),info.get("user"),info.get("password"));
+        try{
+            //init
+            Connection connect = Driver.connect(Configuration.parse(this.url));
+            connect.setAutoCommit(false);
+            Statement state = connect.createStatement();
+            //Create GET
+            ResultSet result = state.executeQuery("SELECT SecretKey FROM " + info.get("userTable")+" WHERE ID=0;");
+            connect.commit();
+            if(result.next()){
+                sk = result.getString(1);
+            }
+            System.out.println("SecretKey: "+sk);
+            cry = new Cryptographic();
+            cry.setKeyByString(sk);
+        }catch(SQLException e){
+            System.out.println("error:"+e.getMessage());
+        }
     }
 
     //Printer
@@ -129,6 +153,7 @@ public class database{
             throw new RuntimeException(e);
         }
     }
+
     public void printSPassowrds(){
         try{
             //init
@@ -158,6 +183,7 @@ public class database{
             throw new RuntimeException(e);
         }
     }
+
     public void printPAccess(){
         try{
             //init
@@ -219,6 +245,7 @@ public class database{
             return "error";
         }
     }
+
     public String getPrintPAccess(){
         try {
             //init
@@ -286,44 +313,57 @@ public class database{
 
     //creating
     public void createUser(String Username,String Password, String SecretKey) {
-        try{
-            //init
-            Connection connect = Driver.connect(Configuration.parse(this.url));
-            connect.setAutoCommit(false);
-            Statement state = connect.createStatement();
-            //Create sql
-            String sqlAmount = "SELECT count(ID) FROM "+ info.get("userTable")+";";
-            ResultSet e = state.executeQuery(sqlAmount);
-            int amount = 0;
-            if(e.next()) {
-                amount = e.getInt(1);
+        if(isUserRegistered(Username)){
+            try{
+                //init
+                Connection connect = Driver.connect(Configuration.parse(this.url));
+                connect.setAutoCommit(false);
+                Statement state = connect.createStatement();
+                //Create sql
+                String sqlAmount = "SELECT count(ID) FROM "+ info.get("userTable")+";";
+                ResultSet e = state.executeQuery(sqlAmount);
+                int amount = 0;
+                if(e.next()) {
+                    amount = e.getInt(1);
+                    System.out.println(amount);
+                }
+                String cryptedPassword = Cryptographic.encrypt(Password);
+                String sql = "INSERT INTO "+info.get("userTable")+" (ID,Username,Password,SecretKey,Role) Values ('" +amount+"','"+Username+"','"+cryptedPassword+"','"+SecretKey+"','user');";
+                state.execute(sql);
+                connect.commit();
+                //Processing SQL-Information
+                System.out.println("User Erstellt");
+            } catch (SQLException | InvalidKeyException | IllegalBlockSizeException | BadPaddingException e) {
+                System.out.println("Error is: "+e.getMessage());
             }
-            String sql = "INSERT INTO "+info.get("userTable")+" (ID,Username,Password,SecretKey,Role) Values ('" +amount+"','"+Username+"','"+Password+"','"+SecretKey+"','user');";
-            state.execute(sql);
-            connect.commit();
-            //Processing SQL-Information
-            System.out.println("User Erstellt");
-        } catch (SQLException e) {
-            System.out.println("Error is: "+e.getMessage());
+        }else{
+            System.out.println("User exist already");
         }
     }
+
     public void createUser(String Username,String Password, String SecretKey, String ID) {
-        try{
-            //init
-            Connection connect = Driver.connect(Configuration.parse(this.url));
-            connect.setAutoCommit(false);
-            Statement state = connect.createStatement();
-            //Create sql
-            String sql = "INSERT INTO "+info.get("userTable")+" (ID,Username,Password,SecretKey,Role) Values ('" +ID+"','"+Username+"','"+Password+"','"+SecretKey+"','user');";
-            state.execute(sql);
-            connect.commit();
-            //Processing SQL-Information
-            System.out.println("User Erstellt");
-        } catch (SQLException e) {
-            System.out.println("Error is: "+e.getMessage());
+        if(isUserRegistered(Username)){
+            try{
+                //init
+                Connection connect = Driver.connect(Configuration.parse(this.url));
+                connect.setAutoCommit(false);
+                Statement state = connect.createStatement();
+                //Create sql
+                String cryptedPassword = Cryptographic.encrypt(Password);
+                String sql = "INSERT INTO "+info.get("userTable")+" (ID,Username,Password,SecretKey,Role) Values ('" +ID+"','"+Username+"','"+cryptedPassword+"','"+SecretKey+"','user');";
+                state.execute(sql);
+                connect.commit();
+                //Processing SQL-Information
+                System.out.println("User Erstellt");
+            } catch (SQLException | InvalidKeyException | IllegalBlockSizeException | BadPaddingException e) {
+                System.out.println("Error is: "+e.getMessage());
+            }
+        }else{
+            System.out.println("User exist already");
         }
     }
-    public void createPassword(String Username, String PW, String owner, String information) {
+
+    public void createPassword(String Username, String PW, String owner, String sk, String information) {
         try {
             //init
             Connection connect = Driver.connect(Configuration.parse(this.url));
@@ -335,15 +375,20 @@ public class database{
             if(e.next()) {
                 amount = e.getInt(1);
             }
-            String sql = "INSERT INTO "+ info.get("sPasswordTable")+" (pID, sUsername, sPassword, information, owner) values ('"+amount+"','"+Username+"','"+PW+"','"+information+"','"+owner+"');";
+            cry.setKeyByString(sk);
+            String cryptedUsername = Cryptographic.encrypt(Username);
+            String cryptedPW = Cryptographic.encrypt(PW);
+            String cryptedinformation = Cryptographic.encrypt(information);
+            String sql = "INSERT INTO "+ info.get("sPasswordTable")+" (pID, sUsername, sPassword, information, owner) values ('"+amount+"','"+cryptedUsername+"','"+cryptedPW+"','"+cryptedinformation+"','"+owner+"');";
             state.execute(sql);
             connect.commit();
             System.out.println("Password saved");
-        }catch(SQLException e){
+        }catch(SQLException | InvalidKeyException | IllegalBlockSizeException | BadPaddingException e){
             System.out.println("Error is: "+e.getMessage());
         }
     }
-    public void createPassword(String Username, String PW, String owner) {
+
+    public void createPassword(String Username, String PW, String owner, String sk) {
         try {
             //init
             Connection connect = Driver.connect(Configuration.parse(this.url));
@@ -355,27 +400,30 @@ public class database{
             if(e.next()) {
                 amount = e.getInt(1);
             }
-            System.out.println(amount);
-            String sql = "INSERT INTO "+ info.get("sPasswordTable")+" (pID, sUsername, sPassword, owner) values ('"+amount+"','"+Username+"','"+PW+"','"+owner+"');";
+            cry.setKeyByString(sk);
+            String cryptedUsername = Cryptographic.encrypt(Username);
+            String cryptedPW = Cryptographic.encrypt(PW);
+            String sql = "INSERT INTO "+ info.get("sPasswordTable")+" (pID, sUsername, sPassword, owner) values ('"+amount+"','"+cryptedUsername+"','"+cryptedPW+"','"+owner+"');";
             state.execute(sql);
             connect.commit();
             System.out.println("Password saved");
-        }catch(SQLException e){
+        }catch(SQLException | InvalidKeyException | IllegalBlockSizeException | BadPaddingException e){
             System.out.println("Error is: "+e.getMessage());
         }
     }
-    public void giveAccess(String from, String to){
+
+    public void giveAccess(String user, String to){
         try{
             //init
             Connection connect = Driver.connect(Configuration.parse(this.url));
             connect.setAutoCommit(false);
             Statement state = connect.createStatement();
             //Create sql
-            String sql = "INSERT INTO "+info.get("pAccessTable")+" (ID, pID) Values ('"+from+"','"+to+"');";
+            String sql = "INSERT INTO "+info.get("pAccessTable")+" (ID, pID) Values ('"+user+"','"+to+"');";
             state.execute(sql);
             connect.commit();
             //Processing SQL-Information
-            System.out.println("Zugang geben");
+            System.out.println("Zugang erteilt");
         } catch (SQLException e) {
             System.out.println("Error is: "+e.getMessage());
         }
@@ -390,7 +438,7 @@ public class database{
         connect.setAutoCommit(false);
         Statement state = connect.createStatement();
         //Create sql
-        String sql = "DELETE FROM "+info.get("userTable")+" WHERE "+info.get("userTable")+".ID = '"+ID+"';";
+        String sql = "UPDATE "+info.get("userTable")+" SET Username='BLANK',PasswordUsername='BLANK',SecretKeyUsername='BLANK',RoleUsername='BLANK'  WHERE "+info.get("userTable")+".ID = '"+ID+"';";
         state.execute(sql);
         connect.commit();
         //Processing SQL-Information
@@ -400,6 +448,7 @@ public class database{
             System.out.println("Error is: "+e.getMessage());
         }
     }
+
     public void deletePassword(String pID){
         try{
             //init
@@ -408,7 +457,7 @@ public class database{
             Statement state = connect.createStatement();
             //Create sql
             String deleteAccess = "DELETE FROM "+info.get("pAccessTable")+" WHERE "+info.get("pAccessTable")+".pID = '"+pID+"';";
-            String deletePassword = "DELETE FROM "+info.get("sPasswordTable")+" WHERE "+info.get("sPasswordTable")+".pID = '"+pID+"';";
+            String deletePassword = "UPDATE "+info.get("sPasswordTable")+" SET sUsername='BLANK', sPassword='BLANK', owner='BLANK' WHERE "+info.get("sPasswordTable")+".pID = '"+pID+"';";
             state.executeQuery(deleteAccess);
             state.executeQuery(deletePassword);
             connect.commit();
@@ -419,6 +468,7 @@ public class database{
             System.out.println("Error is: "+e.getMessage());
         }
     }
+
     public void revokeAccess(String ID, String pID){
         try{
             //init
@@ -456,6 +506,26 @@ public class database{
         }
         return false;
     }
+
+    public boolean isUserRegistered(String Username){
+        try{
+            //init
+            Connection connect = Driver.connect(Configuration.parse(this.url));
+            connect.setAutoCommit(false);
+            Statement state = connect.createStatement();
+            //Create sql with state
+            String check = "select "+info.get("userTable")+".Username='"+Username+"' from "+info.get("userTable")+" where "+info.get("userTable")+".Username='"+Username+"';";
+            ResultSet set = state.executeQuery(check);
+            set.next();
+            connect.commit();
+            //Processing SQL-Information
+            return set.getString(1).equalsIgnoreCase(String.valueOf(1));
+        } catch (SQLException e) {
+            System.out.println("Error is: "+e.getMessage());
+        }
+        return false;
+    }
+
     public void setUserToAdmin(String ID){
         try{
             //init
@@ -474,6 +544,7 @@ public class database{
             System.out.println("Error is: "+e.getMessage());
         }
     }
+
     public void setAdminToUser(String ID){
         try{
             //init
@@ -493,6 +564,26 @@ public class database{
         }
     }
 
+    public String getSKFromID(String ID){
+        try{
+            //init
+            Connection connect = Driver.connect(Configuration.parse(this.url));
+            connect.setAutoCommit(false);
+            Statement state = connect.createStatement();
+            //Create sql with state
+            ResultSet set = state.executeQuery("SELECT SecretKey FROM " +info.get("userTable") +" WHERE "+info.get("userTable")+".ID='"+ID+"';");
+            connect.commit();
+            String UserSK = "";
+            if(set.next()){
+                UserSK = set.getString(1);
+            }
+            return UserSK;
+        } catch (SQLException e) {
+            System.out.println("Error is: "+e.getMessage());
+        }
+        return "error";
+    }
+
     public String getIDByUsername(String Username){
         try{
             //init
@@ -500,24 +591,10 @@ public class database{
             connect.setAutoCommit(false);
             Statement state = connect.createStatement();
             //Create sql with state
-            ResultSet set1 = state.executeQuery("SELECT count(ID) FROM " +info.get("userTable") +" WHERE "+info.get("userTable")+".Username='"+Username+"';");
-            ResultSet set = state.executeQuery("SELECT ID,Username,Role FROM " +info.get("userTable") +" WHERE "+info.get("userTable")+".Username='"+Username+"';");
+            ResultSet set = state.executeQuery("SELECT ID FROM " +info.get("userTable") +" WHERE "+info.get("userTable")+".Username='"+Username+"';");
             connect.commit();
-            int count = 0;
-            if (set1.next()) {
-                count = set1.getInt(1);
-            }
-            String header = "\n ID  |   Username    |   Role\n";
-            String[] body = new String[count];
-            int amount = 0;
-            while (set.next()) {
-                body[amount] = String.format("%s  |   %s    |  %s\n",
-                        set.getString(1),
-                        set.getString(2),
-                        set.getString(3));
-                amount++;
-            }
-            return header+ Arrays.deepToString(body).replaceAll(",","").replace("[", " ").replace("]", "");
+            set.next();
+            return set.getString(1);
         } catch (SQLException e) {
             System.out.println("Error is: "+e.getMessage());
         }

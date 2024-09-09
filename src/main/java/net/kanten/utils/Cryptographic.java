@@ -7,7 +7,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
 
 public class Cryptographic{
-    private SecretKey key;
+    private static SecretKey key;
     private static final Cipher cipher;
     static {
         try {
@@ -25,12 +25,12 @@ public class Cryptographic{
         return gen.generateKey();
     }
     public void setKeyBySecretKey(SecretKey key){
-        this.key = key;
+        Cryptographic.key = key;
     }
     public void setKeyByString(String keyString){
-        this.key = convertStringToSecretKey(keyString);
+        key = convertStringToSecretKey(keyString);
     }
-    public SecretKey getKey(){
+    public static SecretKey getKey(){
         return key;
     }
     public byte[] getRawKey(){return key.getEncoded();}
@@ -42,14 +42,14 @@ public class Cryptographic{
         byte[] decodedKey = Base64.getDecoder().decode(encodedKey);
         return new SecretKeySpec(decodedKey, 0, decodedKey.length, "AES");
     }
-    public static String encrypt(String blankText, SecretKey sk) throws InvalidKeyException, IllegalBlockSizeException, BadPaddingException{
-        cipher.init(Cipher.ENCRYPT_MODE, sk);
+    public static String encrypt(String blankText) throws InvalidKeyException, IllegalBlockSizeException, BadPaddingException{
+        cipher.init(Cipher.ENCRYPT_MODE, getKey());
         byte[] textBytes = blankText.getBytes();
         byte[] cryptText = cipher.doFinal(textBytes);
         return Base64.getEncoder().encodeToString(cryptText);
     }
-    public static String decrypt(String cryptedText, SecretKey sk) throws InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
-        cipher.init(Cipher.DECRYPT_MODE, sk);
+    public static String decrypt(String cryptedText) throws InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
+        cipher.init(Cipher.DECRYPT_MODE, key);
         byte[] tobyte = Base64.getDecoder().decode(cryptedText);
         byte[] decrypted = cipher.doFinal(tobyte);
         return new String(decrypted);
