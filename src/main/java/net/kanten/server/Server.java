@@ -25,19 +25,25 @@ public class Server {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        System.out.println(socket.getLocalSocketAddress());
+        System.out.println(socket.getInetAddress());
         System.out.println("Server started");
         while (true) {
             //wait for any Client reaction
             try {
-                Thread th = new Thread(new intergrate(socket));
-                th.start();
+                if(socket.accept().isConnected()) {
+                    System.out.println("Start thread");
+                    Thread th = new Thread(new intergrate(socket));
+                    th.start();
+                } else if (socket.accept().isClosed()) {
+                    System.out.println("Closing Thread");
+                } else{
+                    System.out.println("nothing");
+                }
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
         }
     }
-
     protected static class intergrate implements Runnable {
         private final ServerSocket socket;
 
@@ -47,11 +53,11 @@ public class Server {
 
         public void run() {
             try {
+                System.out.println("waiting for Client");
+                Socket server= socket.accept();
                 Cryptographic cry = new Cryptographic();
-                Socket socket;
-                socket = this.socket.accept();
-                output = new ObjectOutputStream(socket.getOutputStream());
-                input = new ObjectInputStream(socket.getInputStream());
+                output = new ObjectOutputStream(server.getOutputStream());
+                input = new ObjectInputStream(server.getInputStream());
                 Object clientInput = input.readObject();
                 String[] clientInformation = (String[]) clientInput;
                 String Message;
@@ -151,7 +157,7 @@ public class Server {
                         output.writeObject("unknown Command\ntype \"help\" for more information");
                         break;
                 }
-                socket.close();
+                server.close();
                 input.close();
                 output.close();
             } catch (ClassNotFoundException | IOException | NoSuchAlgorithmException e) {

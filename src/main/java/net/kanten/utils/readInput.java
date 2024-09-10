@@ -1,5 +1,6 @@
 package net.kanten.utils;
 
+import java.net.SocketAddress;
 import java.util.Scanner;
 
 public class readInput {

@@ -7,7 +7,9 @@ import net.kanten.utils.showError;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.net.SocketAddress;
 import java.util.Scanner;
 public class Client {
     private static ObjectOutputStream output;
@@ -21,7 +23,8 @@ public class Client {
             System.out.println("Enter Address");
             serverAddress = new readInput(">");
             System.out.println("ServerAdress");
-            Socket nameclient = new Socket(serverAddress.get(), 500);
+            Socket nameclient = new Socket(serverAddress.get(), 501);
+            nameclient.connect(new InetSocketAddress(Integer.parseInt(serverAddress.get())));
             System.out.println("Enter Username:");
             readInput enterUsername = new readInput(">");
             String[] getID = new String[]{"getmyid", enterUsername.get()};
@@ -81,13 +84,15 @@ public class Client {
                         break;
                     case "exit":
                         System.out.println("Exiting");
+                        client.close();
+                        output.close();
+                        input.close();
                         System.exit(0);
                         break;
                     default:
                         sendingToServer(new String[]{clientOutput});
                         break;
                 }
-                client.close();
                 output.close();
                 input.close();
             }
