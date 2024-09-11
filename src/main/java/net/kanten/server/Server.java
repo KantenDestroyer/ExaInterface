@@ -59,7 +59,7 @@ public class Server {
                 String Message;
                 System.out.println("Converted object:" + Arrays.toString(clientInformation));
                 System.out.print(accept + "\n");
-                //TODO: Update Commands
+                System.out.println(Arrays.toString(clientInformation));
                 switch (clientInformation[0].toLowerCase()) {
                     case "createuser":
                         System.out.println("generated Secret Key:");
