@@ -2,13 +2,11 @@ package net.kanten.server;
 
 import net.kanten.utils.Cryptographic;
 import net.kanten.utils.clearTerminal;
-import net.kanten.utils.readInput;
 
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.security.NoSuchAlgorithmException;
-import java.sql.SQLException;
 import java.util.Arrays;
 
 public class Server {
@@ -30,14 +28,13 @@ public class Server {
         while (true) {
             //wait for any Client reaction
             try {
-                if(socket.accept().isConnected()) {
+                Socket accept = socket.accept();
+                if(accept.isConnected()) {
                     System.out.println("Start thread");
-                    Thread th = new Thread(new intergrate(socket));
+                    Thread th = new Thread(new intergrate(accept));
                     th.start();
-                } else if (socket.accept().isClosed()) {
-                    System.out.println("Closing Thread");
-                } else{
-                    System.out.println("nothing");
+                } else {
+                    accept.close();
                 }
             } catch (IOException e) {
                 throw new RuntimeException(e);
@@ -45,44 +42,37 @@ public class Server {
         }
     }
     protected static class intergrate implements Runnable {
-        private final ServerSocket socket;
+        private final Socket accept;
 
-        public intergrate(ServerSocket socket) throws IOException {
-            this.socket = socket;
+        public intergrate(Socket accept) throws IOException {
+            this.accept = accept;
         }
 
         public void run() {
             try {
-                System.out.println("waiting for Client");
-                Socket server= socket.accept();
+                System.out.println("readInputs");
                 Cryptographic cry = new Cryptographic();
-                output = new ObjectOutputStream(server.getOutputStream());
-                input = new ObjectInputStream(server.getInputStream());
+                output = new ObjectOutputStream(accept.getOutputStream());
+                input = new ObjectInputStream(accept.getInputStream());
                 Object clientInput = input.readObject();
                 String[] clientInformation = (String[]) clientInput;
                 String Message;
                 System.out.println("Converted object:" + Arrays.toString(clientInformation));
-                System.out.print(socket + "\n");
+                System.out.print(accept + "\n");
                 //TODO: Update Commands
                 switch (clientInformation[0].toLowerCase()) {
                     case "createuser":
-                        if(db.isUserRegistered(clientInformation[1])) {
-                            System.out.println("generated Secret Key:");
-                            String SK = Cryptographic.convertSecretKeyToString(cry.createKey());
-                            System.out.println("User Information:");
-                            System.out.println("Username: " + clientInformation[1]);
-                            System.out.println("Password: " + clientInformation[2]);
-                            System.out.println("SecretKey: " + SK);
-                            System.out.println("Create User");
-                            db.createUser(clientInformation[1], clientInformation[2], SK);
-                            Message = "done for " + clientInformation[2] + ",SecretKey is: " + SK;
-                            System.out.println(Message);
-                            output.writeObject(Message);
-                        }else{
-                            Message = "User "+clientInformation[1]+" Exist already";
-                            System.out.println(Message);
-                            output.writeObject(Message);
-                        }
+                        System.out.println("generated Secret Key:");
+                        String SK = Cryptographic.convertSecretKeyToString(cry.createKey());
+                        System.out.println("User Information:");
+                        System.out.println("Username: " + clientInformation[1]);
+                        System.out.println("Password: " + clientInformation[2]);
+                        System.out.println("SecretKey: " + SK);
+                        System.out.println("Create User");
+                        db.createUser(clientInformation[1], clientInformation[2], SK);
+                        Message = "done for " + clientInformation[1] + ",SecretKey is: " + SK;
+                        System.out.println(Message);
+                        output.writeObject(Message);
                         break;
                     case "createpassword":
                         System.out.println("creating Password");
@@ -125,7 +115,7 @@ public class Server {
                         System.out.println("Password Information:");
                         db.printSPassowrds();
                         System.out.println("Sending to Client");
-                        output.writeObject(db.getPintSPassowrds());
+                        output.writeObject(db.getPintSPassowrds(db.getSKFromID(clientInformation[1])));
                         break;
                     case "getaccess":
                         System.out.println("Access Information:");
@@ -138,13 +128,13 @@ public class Server {
                         break;
                     case "giveadmin":
                         System.out.println("Setting user to admin");
-                        db.setUserToAdmin(clientInformation[1]);
+                        db.setUserToAdmin(clientInformation[1], clientInformation[2]);
                         System.out.println("Granted user "+clientInformation[1]+" Admin permission");
                         output.writeObject("Granted user "+clientInformation[1]+" Admin permission");
                         break;
                     case "revokeadmin":
                         System.out.println("Setting admin to user");
-                        db.setAdminToUser(clientInformation[1]);
+                        db.setUserToAdmin(clientInformation[1],clientInformation[2]);
                         System.out.println("revoked user "+clientInformation[1]+" Admin permission");
                         output.writeObject("revoked user "+clientInformation[1]+" Admin permission");
                         break;
@@ -157,9 +147,9 @@ public class Server {
                         output.writeObject("unknown Command\ntype \"help\" for more information");
                         break;
                 }
-                server.close();
                 input.close();
                 output.close();
+                accept.close();
             } catch (ClassNotFoundException | IOException | NoSuchAlgorithmException e) {
                 System.out.println(e.getMessage());
             }

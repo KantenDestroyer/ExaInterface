@@ -7,6 +7,7 @@ import net.kanten.utils.showError;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.net.ConnectException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketAddress;
@@ -23,19 +24,16 @@ public class Client {
             System.out.println("Enter Address");
             serverAddress = new readInput(">");
             System.out.println("ServerAdress");
-            Socket nameclient = new Socket(serverAddress.get(), 501);
-            nameclient.connect(new InetSocketAddress(Integer.parseInt(serverAddress.get())));
             System.out.println("Enter Username:");
             readInput enterUsername = new readInput(">");
             String[] getID = new String[]{"getmyid", enterUsername.get()};
+            Socket nameclient = new Socket(serverAddress.get(), 500);
             ObjectOutputStream nameoutput = new ObjectOutputStream(nameclient.getOutputStream());
             ObjectInputStream nameinput = new ObjectInputStream(nameclient.getInputStream());
             System.out.println("Sending to server");
             nameoutput.writeObject(getID);
             clientID = (String) nameinput.readObject();
-            nameclient.close();
-            nameoutput.close();
-            nameinput.close();
+            System.out.println(clientID);
         }catch(RuntimeException | IOException | ClassNotFoundException e){
             throw new RuntimeException(e);
         }
@@ -55,20 +53,23 @@ public class Client {
                 System.out.println("Enter Command");
                 System.out.print(">");
                 String clientOutput = scan.nextLine();
-                switch (clientOutput) {
-                    case "createuser", "createUser":
+                switch (clientOutput.toLowerCase()) {
+                    case "createuser":
                         System.out.print("\nUsername\n");
-                        System.out.print(">");
                         readInput cUsername = new readInput(">");
                         System.out.print("\nPassword\n");
-                        System.out.print(">");
                         readInput cPassword = new readInput(">");
                         sendingToServer(new String[]{clientOutput, cUsername.get(), cPassword.get()});
                         break;
-                    case "giveadmin", "giveAdmin", "deleteuser", "deleteUser":
+                    case "giveadmin":
                         System.out.print("\nID\n");
                         readInput newAdmin = new readInput(">");
-                        sendingToServer(new String[]{clientOutput, newAdmin.get()});
+                        sendingToServer(new String[]{clientOutput, newAdmin.get(),clientID});
+                        break;
+                    case "deleteuser":
+                        System.out.print("\nID\n");
+                        readInput dU = new readInput(">");
+                        sendingToServer(new String[]{clientOutput, dU.get()});
                         break;
                     case "createpassword":
                         System.out.println("Enter saving Username");
@@ -76,10 +77,7 @@ public class Client {
 
                         System.out.println("Enter saving Password");
                         readInput sPassword = new readInput(">");
-                        /*
-                        System.out.println("Enter Information");
-                        readInput Information = new readInput(">");
-                        */
+
                         sendingToServer(new String[]{clientOutput, Username.get(), sPassword.get(), clientID});
                         break;
                     case "exit":
@@ -89,6 +87,9 @@ public class Client {
                         input.close();
                         System.exit(0);
                         break;
+                    case "getpasswords", "revokeadmin":
+                        sendingToServer(new String[]{clientOutput,clientID});
+                        break;
                     default:
                         sendingToServer(new String[]{clientOutput});
                         break;
@@ -96,7 +97,7 @@ public class Client {
                 output.close();
                 input.close();
             }
-        }catch(InterruptedException | IOException e){
+        } catch(InterruptedException | IOException e){
             run();
             new showError(e);
         }

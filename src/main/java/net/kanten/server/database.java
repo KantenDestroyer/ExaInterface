@@ -191,10 +191,10 @@ public class database{
             connect.setAutoCommit(false);
             Statement state = connect.createStatement();
             //Create GET
-            ResultSet result = state.executeQuery("SELECT ID,pID FROM " + info.get("pAccessTable")+";");
+            ResultSet result = state.executeQuery("SELECT uID,pID FROM " + info.get("pAccessTable")+";");
             connect.commit();
             //rocessing SQL-Information
-            String header = "ID  |   pID";
+            String header = "uID  |   pID";
             String[] body = new String[255];
             int amount = 0;
             System.out.println("\n"+info.get("pAccessTable"));
@@ -253,8 +253,8 @@ public class database{
             connect.setAutoCommit(false);
             Statement state = connect.createStatement();
             //Create GET
-            ResultSet result = state.executeQuery("SELECT ID, pID FROM " + info.get("pAccessTable")+";");
-            ResultSet result1 = state.executeQuery("SELECT count(ID) FROM " + info.get("pAccessTable")+";");
+            ResultSet result = state.executeQuery("SELECT uID, pID FROM " + info.get("pAccessTable")+";");
+            ResultSet result1 = state.executeQuery("SELECT count(uID) FROM " + info.get("pAccessTable")+";");
             connect.commit();
             //rocessing SQL-Information
             int count = 0;
@@ -276,8 +276,18 @@ public class database{
             return "error";
         }
     }
-
-    public String getPintSPassowrds(){
+    private String Check(String text){
+        if(text == null){
+            return "null";
+        }else{
+            try{
+                return(Cryptographic.decrypt(text));
+            }catch (IllegalBlockSizeException | BadPaddingException | InvalidKeyException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+    public String getPintSPassowrds(String sk){
         try {
             //init
             Connection connect = Driver.connect(Configuration.parse(this.url));
@@ -288,19 +298,20 @@ public class database{
             ResultSet result1 = state.executeQuery("SELECT count(pID) FROM " + info.get("sPasswordTable")+";");
             connect.commit();
             //rocessing SQL-Information
+            cry.setKeyByString(sk);
             int count = 0;
             if (result1.next()) {
                 count = result1.getInt(1);
             }
-            String header = "\n pID  |   SPassword    |   Owner\n";
+            String header = "\npID  |     sUsername   |   sPassword   |   information    |   Owner\n";
             //int count = result1.getInt(1);
             String[] body = new String[count];
             int amount = 0;
             while (result.next()) {
                 body[amount] = String.format("%s  |   %s  |   %s  |   %s  |   %s\n",
                         result.getString(1),
-                        result.getString(2),
-                        result.getString(3),
+                        Check(result.getString(2)),//decrypteing
+                        Check(result.getString(3)),//decrypteing
                         result.getString(4),
                         result.getString(5));
                 amount++;
@@ -313,7 +324,7 @@ public class database{
 
     //creating
     public void createUser(String Username,String Password, String SecretKey) {
-        if(isUserRegistered(Username)){
+        if(!isUserRegistered(Username) && isUserAdmin(getIDByUsername(Username))){
             try{
                 //init
                 Connection connect = Driver.connect(Configuration.parse(this.url));
@@ -334,7 +345,8 @@ public class database{
                 //Processing SQL-Information
                 System.out.println("User Erstellt");
             } catch (SQLException | InvalidKeyException | IllegalBlockSizeException | BadPaddingException e) {
-                System.out.println("Error is: "+e.getMessage());
+                //System.out.println("CError is: "+e.getMessage());
+                throw new RuntimeException(e);
             }
         }else{
             System.out.println("User exist already");
@@ -342,7 +354,7 @@ public class database{
     }
 
     public void createUser(String Username,String Password, String SecretKey, String ID) {
-        if(isUserRegistered(Username)){
+        if(!isUserRegistered(Username) && isUserAdmin(getIDByUsername(Username))){
             try{
                 //init
                 Connection connect = Driver.connect(Configuration.parse(this.url));
@@ -412,14 +424,14 @@ public class database{
         }
     }
 
-    public void giveAccess(String user, String to){
+    public void giveAccess(String forUser, String toPW){
         try{
             //init
             Connection connect = Driver.connect(Configuration.parse(this.url));
             connect.setAutoCommit(false);
             Statement state = connect.createStatement();
             //Create sql
-            String sql = "INSERT INTO "+info.get("pAccessTable")+" (ID, pID) Values ('"+user+"','"+to+"');";
+            String sql = "INSERT INTO "+info.get("pAccessTable")+" (ID, pID) Values ('"+ forUser +"','"+ toPW +"');";
             state.execute(sql);
             connect.commit();
             //Processing SQL-Information
@@ -514,7 +526,25 @@ public class database{
             connect.setAutoCommit(false);
             Statement state = connect.createStatement();
             //Create sql with state
-            String check = "select "+info.get("userTable")+".Username='"+Username+"' from "+info.get("userTable")+" where "+info.get("userTable")+".Username='"+Username+"';";
+            String check = "SELECT "+info.get("userTable")+".Username='"+Username+"' FROM "+info.get("userTable")+" WHERE "+info.get("userTable")+".Username='"+Username+"';";
+            ResultSet set = state.executeQuery(check);
+            set.next();
+            connect.commit();
+            //Processing SQL-Information
+            return set.getString(1).equalsIgnoreCase(String.valueOf(1));
+        } catch (SQLException e) {
+            return false;
+        }
+    }
+
+    public boolean isUserAdmin(String ID){
+        try{
+            //init
+            Connection connect = Driver.connect(Configuration.parse(this.url));
+            connect.setAutoCommit(false);
+            Statement state = connect.createStatement();
+            //Create sql with state
+            String check = "select "+info.get("userTable")+".ID='"+ID+"' && "+info.get("userTable")+".Role='admin' from "+info.get("userTable")+" where "+info.get("userTable")+".ID='"+ID+"' && "+info.get("userTable")+".Role='admin';";
             ResultSet set = state.executeQuery(check);
             set.next();
             connect.commit();
@@ -526,39 +556,46 @@ public class database{
         return false;
     }
 
-    public void setUserToAdmin(String ID){
-        try{
+    public void setUserToAdmin(String ID, String AUTH){
+        if(isUserAdmin(AUTH)){
+        try {
             //init
             Connection connect = Driver.connect(Configuration.parse(this.url));
             connect.setAutoCommit(false);
             Statement state = connect.createStatement();
             //Create sql with state
-            String giveAdmin = "Update "+info.get("userTable")+" SET Role = 'admin' WHERE "+info.get("userTable")+".ID = "+ID+";";
+            String giveAdmin = "Update " + info.get("userTable") + " SET Role = 'admin' WHERE " + info.get("userTable") + ".ID = " + ID + ";";
             state.execute(giveAdmin);
             System.out.println(giveAdmin);
             connect.commit();
             //Processing SQL-Information
-            System.out.println(ID+" is now Admin");
+            System.out.println(ID + " is now Admin");
 
-        } catch (SQLException e) {
-            System.out.println("Error is: "+e.getMessage());
+            } catch (SQLException e) {
+                System.out.println("Error is: "+e.getMessage());
+            }
+        }else{
+            System.out.println("Bad AUTH");
         }
     }
 
-    public void setAdminToUser(String ID){
+    public void setAdminToUser(String ID, String AUTH){
         try{
-            //init
-            Connection connect = Driver.connect(Configuration.parse(this.url));
-            connect.setAutoCommit(false);
-            Statement state = connect.createStatement();
-            //Create sql with state
-            String giveAdmin = "Update "+info.get("userTable")+" SET Role = 'admin' WHERE "+info.get("userTable")+".ID = "+ID+";";
-            state.execute(giveAdmin);
-            System.out.println(giveAdmin);
-            connect.commit();
-            //Processing SQL-Information
-            System.out.println(ID+" is now Admin");
+            if(isUserAdmin(AUTH)) {
+                //init
+                Connection connect = Driver.connect(Configuration.parse(this.url));
+                connect.setAutoCommit(false);
+                Statement state = connect.createStatement();
+                //Create sql with state
+                String giveAdmin = "Update " + info.get("userTable") + " SET Role = 'admin' WHERE " + info.get("userTable") + ".ID = " + ID + ";";
+                state.execute(giveAdmin);
+                System.out.println(giveAdmin);
+                connect.commit();
+                //Processing SQL-Information
+                System.out.println(ID + " is now Admin");
+            }else{
 
+            }
         } catch (SQLException e) {
             System.out.println("Error is: "+e.getMessage());
         }
