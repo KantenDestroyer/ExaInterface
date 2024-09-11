@@ -9,8 +9,8 @@ for Version v1.1\
 
 ## Projekt - ToDo
 ### backend
-- [ ] Better Creating User's
-- [ ] Expending Database class (Like: Crypt Master Password, for saving password, Add access methods)
+- [X] Better Creating User's
+- [X] Expending Database class (Like: Crypt Master Password, for saving password, Add access methods)
 - [ ] Webserver Working, with a WebFolder.
 ### frontend - Client
 - Anwendung _(JavaFX)_
