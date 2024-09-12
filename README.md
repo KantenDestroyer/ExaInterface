@@ -16,6 +16,7 @@ for Version v1.1\
 - Anwendung _(JavaFX)_
 - Mobil version _(JavaFX)_ [Tutorial](https://foojay.io/today/creating-mobile-apps-with-javafx-part-1/)
 - WebApp _(HTML/CSS/PHP/JavaScript)_ -> Webserver in Package "org.kanten.server.Webserver" / Website "org.kanten.server.Website"
+- [small guide](https://stackoverflow.com/questions/147181/how-can-i-convert-my-java-program-to-an-exe-file)
 ### Maven
 - [X] Compile it with dependencies
 - [ ] Different lifecycles 
