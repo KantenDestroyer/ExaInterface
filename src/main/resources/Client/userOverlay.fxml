@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+
+<Pane fx:id="root" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/11.0.14-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="net.kanten.client.overlayController">
+    <padding>
+        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+    </padding>
+    <AnchorPane prefHeight="64.0" prefWidth="600.0">
+        <ImageView fx:id="Logo" fitHeight="50.0" fitWidth="200.0" layoutX="200.0" layoutY="7.0" pickOnBounds="true" preserveRatio="true">
+            <Image url="@assets/exatrek-text.png" />
+        </ImageView>
+    </AnchorPane>
+   <TableView layoutX="25.0" layoutY="64.0">
+     <columns>
+        <TableColumn maxWidth="1.7976931348623157E308" minWidth="-Infinity" prefWidth="108.0" text="Name" />
+        <TableColumn maxWidth="1.7976931348623157E308" minWidth="-Infinity" prefWidth="108.0" text="URL" />
+        <TableColumn maxWidth="1.7976931348623157E308" minWidth="-Infinity" prefWidth="108.0" text="Username" />
+        <TableColumn maxWidth="1.7976931348623157E308" minWidth="-Infinity" prefWidth="108.0" text="Password" />
+        <TableColumn maxWidth="1.7976931348623157E308" minWidth="-Infinity" prefWidth="108.0" text="Information" />
+     </columns>
+      <padding>
+         <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+      </padding>
+   </TableView>
+</Pane>

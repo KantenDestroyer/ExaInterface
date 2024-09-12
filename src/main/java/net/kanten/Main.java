@@ -73,7 +73,7 @@ public class Main {
                     break;
                 case "d":
                     database db =new database();
-                    System.out.println(db.isUserAdmin("1"));
+                    System.out.println(db.getSKFromID("1"));
                     break;
                 case "--gui":
                 case "-g":

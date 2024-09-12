@@ -161,21 +161,23 @@ public class database{
             connect.setAutoCommit(false);
             Statement state = connect.createStatement();
             //Create GET
-            ResultSet result = state.executeQuery("SELECT pID,sUsername,sPassword,information,owner FROM " + info.get("sPasswordTable")+";");
+            ResultSet result = state.executeQuery("SELECT pID,nPassword,URL,sUsername,sPassword,information,owner FROM " + info.get("sPasswordTable")+";");
             connect.commit();
             //rocessing SQL-Information
-            String header = "pID  |     sUsername   |   sPassword   |   information    |   Owner";
+            String header = "pID  |     Name     |     URL     |     sUsername   |   sPassword   |   information    |   Owner";
             String[] body = new String[255];
             int amount = 0;
             System.out.println("\n"+info.get("sPasswordTable"));
             System.out.println(header);
             while(result.next()) {
-                body[amount] = String.format("%s  |   %s  |   %s  |   %s  |   %s\n",
+                body[amount] = String.format("%s  |   %s  |   %s  |   %s  |   %s  |   %s  |   %s\n",
                         result.getString(1),
                         result.getString(2),
                         result.getString(3),
                         result.getString(4),
-                        result.getString(5));
+                        result.getString(5),
+                        result.getString(6),
+                        result.getString(7));
                 System.out.printf(body[amount]);
                 amount++;
             }
@@ -298,20 +300,19 @@ public class database{
             ResultSet result1 = state.executeQuery("SELECT count(pID) FROM " + info.get("sPasswordTable")+";");
             connect.commit();
             //rocessing SQL-Information
-            cry.setKeyByString(sk);
             int count = 0;
             if (result1.next()) {
                 count = result1.getInt(1);
             }
-            String header = "\npID  |     sUsername   |   sPassword   |   information    |   Owner\n";
+            String header = "\npID  |     nPassword   |     URL   |     sUsername   |   sPassword   |   information    |   Owner\n";
             //int count = result1.getInt(1);
             String[] body = new String[count];
             int amount = 0;
             while (result.next()) {
                 body[amount] = String.format("%s  |   %s  |   %s  |   %s  |   %s\n",
                         result.getString(1),
-                        Check(result.getString(2)),//decrypteing
-                        Check(result.getString(3)),//decrypteing
+                        result.getString(2),//decrypteing
+                        result.getString(3),//decrypteing
                         result.getString(4),
                         result.getString(5));
                 amount++;
@@ -324,7 +325,7 @@ public class database{
 
     //creating
     public void createUser(String Username,String Password, String SecretKey) {
-        if(!isUserRegistered(Username) && isUserAdmin(getIDByUsername(Username))){
+        if(isUserRegistered(Username) && isUserAdmin(getIDByUsername(Username))){
             try{
                 //init
                 Connection connect = Driver.connect(Configuration.parse(this.url));
@@ -354,7 +355,7 @@ public class database{
     }
 
     public void createUser(String Username,String Password, String SecretKey, String ID) {
-        if(!isUserRegistered(Username) && isUserAdmin(getIDByUsername(Username))){
+        if(isUserRegistered(Username) && isUserAdmin(getIDByUsername(Username))){
             try{
                 //init
                 Connection connect = Driver.connect(Configuration.parse(this.url));
@@ -375,7 +376,7 @@ public class database{
         }
     }
 
-    public void createPassword(String Username, String PW, String owner, String sk, String information) {
+    public void createPassword(String nPassowrd, String URL,String Username, String PW, String owner, String sk, String information) {
         try {
             //init
             Connection connect = Driver.connect(Configuration.parse(this.url));
@@ -391,7 +392,7 @@ public class database{
             String cryptedUsername = Cryptographic.encrypt(Username);
             String cryptedPW = Cryptographic.encrypt(PW);
             String cryptedinformation = Cryptographic.encrypt(information);
-            String sql = "INSERT INTO "+ info.get("sPasswordTable")+" (pID, sUsername, sPassword, information, owner) values ('"+amount+"','"+cryptedUsername+"','"+cryptedPW+"','"+cryptedinformation+"','"+owner+"');";
+            String sql = "INSERT INTO "+ info.get("sPasswordTable")+" (pID, sUsername, sPassword, information, owner, URL, nPassword) values ('"+amount+"','"+cryptedUsername+"','"+cryptedPW+"','"+cryptedinformation+"','"+owner+"','"+URL+"','"+nPassowrd+"');";
             state.execute(sql);
             connect.commit();
             System.out.println("Password saved");
@@ -469,7 +470,7 @@ public class database{
             Statement state = connect.createStatement();
             //Create sql
             String deleteAccess = "DELETE FROM "+info.get("pAccessTable")+" WHERE "+info.get("pAccessTable")+".pID = '"+pID+"';";
-            String deletePassword = "UPDATE "+info.get("sPasswordTable")+" SET sUsername='BLANK', sPassword='BLANK', owner='BLANK' WHERE "+info.get("sPasswordTable")+".pID = '"+pID+"';";
+            String deletePassword = "UPDATE "+info.get("sPasswordTable")+" SET sUsername='BLANK', sPassword='BLANK', owner='BLANK', information='BLANK', nPassword='BLANK', URL='BLANK' WHERE "+info.get("sPasswordTable")+".pID = '"+pID+"';";
             state.executeQuery(deleteAccess);
             state.executeQuery(deletePassword);
             connect.commit();
@@ -507,7 +508,8 @@ public class database{
             connect.setAutoCommit(false);
             Statement state = connect.createStatement();
             //Create sql with state
-            String check = "select "+info.get("userTable")+".Username='"+Username+"' && "+info.get("userTable")+".Password='"+Password+"' from "+info.get("userTable")+" where "+info.get("userTable")+".Username='"+Username+"' && "+info.get("userTable")+".Password='"+Password+"';";
+            String cryPassword = Cryptographic.encrypt(Password);
+            String check = "select "+info.get("userTable")+".Username='"+Username+"' && "+info.get("userTable")+".Password='"+cryPassword+"' from "+info.get("userTable")+" where "+info.get("userTable")+".Username='"+Username+"' && "+info.get("userTable")+".Password='"+cryPassword+"';";
             ResultSet set = state.executeQuery(check);
             set.next();
             connect.commit();
@@ -515,6 +517,8 @@ public class database{
             return set.getString(1).equalsIgnoreCase(String.valueOf(1));
         } catch (SQLException e) {
             System.out.println("Error is: "+e.getMessage());
+        } catch (IllegalBlockSizeException | BadPaddingException | InvalidKeyException e) {
+            throw new RuntimeException(e);
         }
         return false;
     }
@@ -531,9 +535,9 @@ public class database{
             set.next();
             connect.commit();
             //Processing SQL-Information
-            return set.getString(1).equalsIgnoreCase(String.valueOf(1));
+            return !set.getString(1).equalsIgnoreCase(String.valueOf(1));
         } catch (SQLException e) {
-            return false;
+            return true;
         }
     }
 
@@ -610,11 +614,8 @@ public class database{
             //Create sql with state
             ResultSet set = state.executeQuery("SELECT SecretKey FROM " +info.get("userTable") +" WHERE "+info.get("userTable")+".ID='"+ID+"';");
             connect.commit();
-            String UserSK = "";
-            if(set.next()){
-                UserSK = set.getString(1);
-            }
-            return UserSK;
+            set.next();
+            return set.getString(1);
         } catch (SQLException e) {
             System.out.println("Error is: "+e.getMessage());
         }

@@ -126,6 +126,9 @@ public class Server {
                     case "getmyid":
                         output.writeObject(db.getIDByUsername(clientInformation[1]));
                         break;
+                    case "getmysk":
+                        output.writeObject(db.getSKFromID(clientInformation[1]));
+                        break;
                     case "giveadmin":
                         System.out.println("Setting user to admin");
                         db.setUserToAdmin(clientInformation[1], clientInformation[2]);
@@ -138,6 +141,16 @@ public class Server {
                         System.out.println("revoked user "+clientInformation[1]+" Admin permission");
                         output.writeObject("revoked user "+clientInformation[1]+" Admin permission");
                         break;
+                    case "login":
+                        System.out.println("login");
+                        if(db.isUserRegistered(clientInformation[1],clientInformation[2])){
+                            System.out.println("Login granted");
+                            output.writeObject("true");
+                        }else{
+                            System.out.println("Bad Login");
+                            output.writeObject("false");
+                        }
+                        break;
                     case "help":
                         System.out.print("Help command\n");
                         output.writeObject("these are the commands\ncreateuser      |   To create a User\ndeleteuser      |      To delete User\nprint         |   to Print users on server\nhelp        |   To show command list\ngetusers     |       to get user list\ngetpasswords      |       get Passwordlist\ngetaccess     |       show Access list\ngiveadmin     |       grand User Admin permission\nrevokeadmin    |       Remove admin permission from User");
@@ -147,6 +160,7 @@ public class Server {
                         output.writeObject("unknown Command\ntype \"help\" for more information");
                         break;
                 }
+                System.out.println("closing");
                 input.close();
                 output.close();
                 accept.close();

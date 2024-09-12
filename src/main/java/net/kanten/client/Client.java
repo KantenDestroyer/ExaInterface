@@ -7,10 +7,7 @@ import net.kanten.utils.showError;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.net.ConnectException;
-import java.net.InetSocketAddress;
 import java.net.Socket;
-import java.net.SocketAddress;
 import java.util.Scanner;
 public class Client {
     private static ObjectOutputStream output;
@@ -18,24 +15,101 @@ public class Client {
     private static final Scanner scan = new Scanner(System.in);
     protected static String clientInput;
     protected static String clientID;
+    protected static String clientAUTH;
+    protected static String clientKey;
     private static readInput serverAddress;
-    public Client(){
-        try{
+    public Client() {
+        try {
             System.out.println("Enter Address");
             serverAddress = new readInput(">");
-            System.out.println("ServerAdress");
+
+            System.out.println("ServerAddress: " + serverAddress.get());
+
             System.out.println("Enter Username:");
             readInput enterUsername = new readInput(">");
+
+            System.out.println("Enter Password:");
+            readInput enterPassword = new readInput(">");
+
+            //GetID
+
             String[] getID = new String[]{"getmyid", enterUsername.get()};
+
+            System.out.println("Attempting to connect to server...");
             Socket nameclient = new Socket(serverAddress.get(), 500);
+            System.out.println("Connected to server.");
+            
             ObjectOutputStream nameoutput = new ObjectOutputStream(nameclient.getOutputStream());
             ObjectInputStream nameinput = new ObjectInputStream(nameclient.getInputStream());
-            System.out.println("Sending to server");
+
+            System.out.println("Sending getID request to server");
             nameoutput.writeObject(getID);
+            nameoutput.flush();
+            
+            System.out.println("Waiting for server response...");
             clientID = (String) nameinput.readObject();
-            System.out.println(clientID);
-        }catch(RuntimeException | IOException | ClassNotFoundException e){
-            throw new RuntimeException(e);
+            System.out.println("Received clientID: " + clientID);
+
+            nameclient.close();
+            nameinput.close();
+            nameoutput.close();
+
+
+            //getKey
+
+            String[] getKey = new String[]{"getmysk", clientID};
+
+            nameclient = new Socket(serverAddress.get(), 500);
+            System.out.println("Connected to server.");
+
+            nameoutput = new ObjectOutputStream(nameclient.getOutputStream());
+            nameinput = new ObjectInputStream(nameclient.getInputStream());
+
+            System.out.println("Sending login request to server");
+            nameoutput.writeObject(getKey);
+            nameoutput.flush();
+
+            System.out.println("Waiting for server response...");
+            clientKey = (String) nameinput.readObject();
+            System.out.println("Received clientKey: " + clientKey);
+
+            nameclient.close();
+            nameinput.close();
+            nameoutput.close();
+
+            //AUTHENTICATION
+
+            String[] getAUTH = new String[]{"login", enterUsername.get(), enterPassword.get()};
+
+            nameclient = new Socket(serverAddress.get(), 500);
+            System.out.println("Connected to server.");
+
+            nameoutput = new ObjectOutputStream(nameclient.getOutputStream());
+            nameinput = new ObjectInputStream(nameclient.getInputStream());
+
+            System.out.println("Sending login request to server");
+            nameoutput.writeObject(getAUTH);
+            nameoutput.flush();
+            
+            System.out.println("Waiting for server response...");
+            clientAUTH = (String) nameinput.readObject();
+            System.out.println("Received clientAUTH: " + clientAUTH);
+
+            nameclient.close();
+            nameinput.close();
+            nameoutput.close();
+            if(Boolean.parseBoolean(clientAUTH)){
+                System.out.println("login granted");
+            }else{
+                System.out.println("bad login");
+                System.exit(0);
+            }
+        } catch (IOException e) {
+            System.err.println("IO Error: " + e.getMessage());
+            throw new RuntimeException("Failed to connect to server: " + e.getMessage(), e);
+        } catch (ClassNotFoundException e) {
+            System.err.println("Class not found: " + e.getMessage());
+            throw new RuntimeException("Error in data received from server: " + e.getMessage(), e);
         }
     }
     public static void run() throws IOException {
