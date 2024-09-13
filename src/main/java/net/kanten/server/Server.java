@@ -151,6 +151,9 @@ public class Server {
                             output.writeObject("false");
                         }
                         break;
+                    case "gethispassword":
+                        System.out.println("password :3");
+                        break;
                     case "help":
                         System.out.print("Help command\n");
                         output.writeObject("these are the commands\ncreateuser      |   To create a User\ndeleteuser      |      To delete User\nprint         |   to Print users on server\nhelp        |   To show command list\ngetusers     |       to get user list\ngetpasswords      |       get Passwordlist\ngetaccess     |       show Access list\ngiveadmin     |       grand User Admin permission\nrevokeadmin    |       Remove admin permission from User");

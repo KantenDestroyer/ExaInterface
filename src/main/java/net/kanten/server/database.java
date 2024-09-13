@@ -5,6 +5,8 @@ import java.sql.*;
 import java.util.Arrays;
 import java.util.HashMap;
 
+import javafx.scene.control.TableRow;
+import javafx.scene.control.TableView;
 import net.kanten.utils.Cryptographic;
 import net.kanten.utils.clearTerminal;
 import net.kanten.utils.readInput;
@@ -165,7 +167,7 @@ public class database{
             connect.commit();
             //rocessing SQL-Information
             String header = "pID  |     Name     |     URL     |     sUsername   |   sPassword   |   information    |   Owner";
-            String[] body = new String[255];
+            String[] body = new String[];
             int amount = 0;
             System.out.println("\n"+info.get("sPasswordTable"));
             System.out.println(header);
@@ -194,10 +196,15 @@ public class database{
             Statement state = connect.createStatement();
             //Create GET
             ResultSet result = state.executeQuery("SELECT uID,pID FROM " + info.get("pAccessTable")+";");
+            ResultSet result1 = state.executeQuery("SELECT count(id) FROM " + info.get("userTable")+";");
             connect.commit();
+            int count = 0;
+            if (result1.next()) {
+                count = result1.getInt(1);
+            }
             //rocessing SQL-Information
             String header = "uID  |   pID";
-            String[] body = new String[255];
+            String[] body = new String[count];
             int amount = 0;
             System.out.println("\n"+info.get("pAccessTable"));
             System.out.println(header);
@@ -638,4 +645,25 @@ public class database{
         }
         return "error";
     }
+
+    public String[][] getHisPassword(String ID){
+        try{
+            //init
+            Connection connect = Driver.connect(Configuration.parse(this.url));
+            connect.setAutoCommit(false);
+            Statement state = connect.createStatement();
+            //Create sql with state
+            ResultSet set = state.executeQuery("select * from pAccess join sPassword on sPassword.pID=pAccess.pID join users on sPassword.owner=Users.ID;");
+            ResultSet result1 = state.executeQuery("SELECT count(id) FROM " + info.get("userTable")+";");
+            connect.commit();
+            int count = 0;
+            if (result1.next()) {
+                count = result1.getInt(1);
+            }
+        } catch (SQLException e) {
+            System.out.println("Error is: "+e.getMessage());
+        }
+        return new String[0][];
+    }
+
 }

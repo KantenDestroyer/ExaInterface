@@ -1,12 +1,16 @@
 package net.kanten.client;
 
 import javafx.event.ActionEvent;
+import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
 import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.image.ImageView;
+import javafx.stage.Stage;
 import net.kanten.utils.showError;
 
 import java.io.IOException;
@@ -24,7 +28,10 @@ public class clientController {
     protected String clientID;
     protected String clientKey;
     protected String clientAUTH;
-    private Parent root;
+    @FXML
+    public Parent root;
+    public Stage stage;
+    public Scene scene;
     public void Login(ActionEvent e) throws IOException {
         Socket client = null;
         try {
@@ -109,7 +116,12 @@ public class clientController {
             root = loader.load();
 
             overlayController oC = loader.getController();
-            oC.
+            oC.setInformation(clientID,clientKey);
+
+            stage = (Stage) ((Node)e.getSource()).getScene().getWindow();
+            scene = new Scene(root);
+            stage.setScene(scene);
+            stage.show();
 
             }else{
                 System.out.println("bad Login");
