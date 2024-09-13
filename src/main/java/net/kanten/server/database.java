@@ -164,10 +164,15 @@ public class database{
             Statement state = connect.createStatement();
             //Create GET
             ResultSet result = state.executeQuery("SELECT pID,nPassword,URL,sUsername,sPassword,information,owner FROM " + info.get("sPasswordTable")+";");
+            ResultSet result1 = state.executeQuery("SELECT count(id) FROM " + info.get("userTable")+";");
             connect.commit();
             //rocessing SQL-Information
             String header = "pID  |     Name     |     URL     |     sUsername   |   sPassword   |   information    |   Owner";
-            String[] body = new String[];
+            int count = 0;
+            if (result1.next()) {
+                count = result1.getInt(1);
+            }
+            String[] body = new String[count];
             int amount = 0;
             System.out.println("\n"+info.get("sPasswordTable"));
             System.out.println(header);
